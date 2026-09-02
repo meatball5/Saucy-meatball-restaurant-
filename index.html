@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saucy Meatball Restaurant</title>
+  <style>
+    :root {
+      --bg-dark: #06140e;
+      --card-bg: rgba(18, 48, 36, 0.75);
+      --card-border: rgba(82, 183, 136, 0.25);
+      --input-bg: #0d281e;
+      
+      --emerald-accent: #2ec4b6;
+      --primary-green: #52b788;
+      --bright-green: #25d366;
+      
+      --gold-primary: #ffd700;
+      --gold-dark: #b8860b;
+      --gold-gradient: linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #d4af37 100%);
+      
+      --mint-text: #d8f3dc;
+      --subtext: #95d5b2;
+      
+      --mtn-yellow: #ffb703;
+      --airtel-red: #e63946;
+      --danger-red: #ff3333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--mint-text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      background-image: radial-gradient(circle at 50% 10%, #0f382a 0%, #06140e 100%);
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      background-color: rgba(6, 20, 14, 0.95);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 100vh;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      border-left: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
+    }
+
+    .top-floating-bar {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      background: rgba(6, 20, 14, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gold-dark);
+      padding: 10px 16px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .floating-text {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      font-weight: 600;
+    }
+
+    .floating-price {
+      font-size: 1.05rem;
+      color: var(--gold-primary);
+      font-weight: 900;
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 20px 16px;
+      padding-bottom: 90px;
+      overflow-y: auto;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .brand-title {
+      font-size: 1.7rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      background: linear-gradient(135deg, #ffffff 0%, var(--primary-green) 50%, var(--emerald-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    }
+
+    .subtitle {
+      color: var(--subtext);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .accent-title {
+      color: var(--primary-green);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: var(--subtext);
+      margin-bottom: 6px;
+      display: block;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      height: 48px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input.input-error {
+      border: 2px solid #ff6b6b !important;
+      background-color: rgba(255, 107, 107, 0.15) !important;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary-green);
+      box-shadow: 0 0 8px rgba(82, 183, 136, 0.4);
+    }
+
+    .btn {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-bold-green {
+      background-color: var(--bright-green);
+      color: #04140c;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+    }
+
+    .btn-bold-gold {
+      background: var(--gold-gradient);
+      color: #1a1100;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      border: 1px solid #fff099;
+    }
+
+    .btn-mtn { background-color: var(--mtn-yellow); color: #000; font-weight: bold; }
+    .btn-airtel { background-color: var(--airtel-red); color: #fff; font-weight: bold; }
+    .btn-danger { background-color: var(--danger-red); color: #fff; font-weight: bold; }
+    .btn-secondary { background: var(--input-bg); color: #fff; border: 1px solid var(--card-border); }
+    .btn-text { background: transparent; color: var(--primary-green); height: auto; padding: 8px 0; font-weight: 600; }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .avatar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px 0 16px;
+    }
+
+    .avatar-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--gold-primary);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(82, 183, 136, 0.12);
+      gap: 8px;
+    }
+
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item-info { flex: 1; min-width: 0; }
+    .menu-item-name { font-size: 0.88rem; color: #ffffff; word-break: break-word; }
+    
+    .menu-item-price { 
+      font-size: 0.88rem; 
+      color: var(--gold-primary); 
+      font-weight: 900; 
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .btn-add {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 8px;
+      background-color: var(--primary-green);
+      color: #04140c;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(3, 10, 7, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: #0d231a;
+      border: 1px solid var(--primary-green);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    }
+
+    .gateway-header {
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 12px 0;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .checkbox-item {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      gap: 8px;
+    }
+
+    .checkbox-item input { accent-color: var(--bright-green); }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 440px;
+      height: 65px;
+      background-color: rgba(6, 20, 14, 0.98);
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 8px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .nav-btn {
+      background-color: transparent;
+      color: var(--subtext);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      background-color: var(--card-bg);
+      color: var(--gold-primary);
+      border: 1px solid var(--gold-dark);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- TOP FLOATING AUTO-SUM BAR -->
+    <div class="top-floating-bar" id="top-floating-bar">
+      <div>
+        <span class="floating-text">Total Order Items: </span>
+        <strong id="floating-count" style="color: #ffffff;">0</strong>
+      </div>
+      <div>
+        <span class="floating-price" id="floating-total">UGX 0</span>
+      </div>
+    </div>
+
+    <div class="content-area" id="main-content-area">
+
+      <!-- LOGIN SCREEN -->
+      <section id="screen-login" class="screen active">
+        <div style="text-align: center; margin: 20px 0 20px;">
+          <h1 class="brand-title">SAUCY MEATBALL</h1>
+          <p class="subtitle">Satisfy your deep cravings</p>
+        </div>
+        <div class="card">
+          <label>Email Address</label>
+          <input type="email" id="login-email" placeholder="name@example.com" />
+          
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" />
+          
+          <div id="login-error" class="error-msg"></div>
+          
+          <button class="btn btn-bold-green" id="btn-handle-login">LOG IN ACCOUNT</button>
+        </div>
+        
+        <button class="btn btn-text" id="btn-open-forgot" style="color: var(--gold-primary); display: block; margin: 10px auto 0;">
+          Forgot Password?
+        </button>
+        <button class="btn btn-text" id="btn-goto-signup" style="color: #ffffff; display: block; margin: 5px auto 0;">
+          Not registered? Create Account
+        </button>
+      </section>
+
+      <!-- SIGNUP SCREEN -->
+      <section id="screen-signup" class="screen">
+        <h2 class="brand-title" style="margin-bottom: 16px;">REGISTER ACCOUNT</h2>
+        <div class="card">
+          <label>Full Name <span style="color:#ff6b6b;">*</span></label>
+          <input type="text" id="signup-name" placeholder="John Doe" />
+          
+          <label>Phone Contact (10 Digits starting with 07) <span style="color:#ff6b6b;">*</span></label>
+          <input type="tel" id="signup-phone" placeholder="0700000000" maxlength="10" />
+
+          <label>Email Address <span style="color:#ff6b6b;">*</span></label>
+          <input type="email" id="signup-email" placeholder="name@example.com" />
+          
+          <label>Password (Min 6 chars) <span style="color:#ff6b6b;">*</span></label>
+          <input type="password" id="signup-password" placeholder="••••••••" />
+          
+          <label>Profile Picture (Optional)</label>
+          <input type="file" id="signup-photo" accept="image/*" style="display: none;" />
+          <button class="btn btn-secondary" id="btn-upload-photo" style="margin-bottom: 14px;">Upload Photo</button>
+          
+          <div id="signup-error" class="error-msg"></div>
+          
+          <button class="btn btn-bold-gold" id="btn-handle-signup">REGISTER ACCOUNT</button>
+        </div>
+        <button class="btn btn-text" id="btn-goto-login" style="color: #ffffff;">
+          Already registered? Log In
+        </button>
+      </section>
+
+      <!-- HOME / ORDER SCREEN -->
+      <section id="screen-home" class="screen">
+        <div style="margin-bottom: 14px; text-align: center;">
+          <h1 class="brand-title">SAUCY MEATBALL</h1>
+          <p class="subtitle">MTN: 0762683272 | Airtel: 0741540594</p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--gold-primary);">
+          <h2 style="font-size: 1.1rem; margin-bottom: 4px; color: #ffffff;">Welcome Back!</h2>
+          <p class="subtitle" style="text-align: left;">Your account is authenticated & ready to order.</p>
+        </div>
+
+        <h3 class="accent-title" style="margin-bottom: 8px;">Mobile Money Express Checkout</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+          <button class="btn btn-mtn" id="btn-gateway-mtn">MTN MoMo</button>
+          <button class="btn btn-airtel" id="btn-gateway-airtel">Airtel Money</button>
+        </div>
+
+        <div class="card">
+          <h3 class="accent-title" style="margin-bottom: 12px;">Place Your Order</h3>
+          <label>Delivery Point / Table Number</label>
+          <input type="text" id="order-location" placeholder="e.g., Table 4 or Ntinda Complex..." />
+          
+          <label>Order Items</label>
+          <input type="text" id="order-items" placeholder="Tap '+' from Menu tab to auto-fill..." />
+          
+          <button class="btn btn-bold-green" id="btn-send-main-order">SEND ORDER TO WHATSAPP</button>
+          
+          <div style="text-align: center; margin-top: 10px;">
+            <a id="direct-wa-link" href="#" target="_blank" style="color: var(--subtext); font-size: 0.75rem; text-decoration: underline; display: none;">
+              WebView Issue? Click here to launch WhatsApp Web
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU SCREEN -->
+      <section id="screen-menu" class="screen">
+        <h1 class="brand-title" style="margin-bottom: 12px;">RESTAURANT MENU</h1>
+        <div id="menu-container"></div>
+      </section>
+
+      <!-- PROFILE SCREEN -->
+      <section id="screen-profile" class="screen">
+        <h2 class="brand-title" style="text-align: left; margin-bottom: 12px;">MY ACCOUNT</h2>
+        <div class="card">
+          <div class="avatar-container">
+            <img id="profile-img" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" />
+            <input type="file" id="profile-photo-input" accept="image/*" style="display: none;" />
+            <button class="btn btn-text" id="btn-change-photo" style="color: var(--gold-primary);">Change Picture</button>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 16px;">
+            <p><strong id="profile-name" style="font-size: 1.1rem; color: #fff;">User Account</strong></p>
+            <p id="profile-email" style="font-size: 0.85rem; color: var(--subtext); margin-top: 2px;">user@example.com</p>
+            <p class="subtitle" style="margin-top: 6px; color: var(--bright-green);">Status: Active & Authenticated</p>
+          </div>
+
+          <button class="btn btn-danger" id="btn-handle-logout">LOG OUT</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- NAVIGATION BAR -->
+    <nav id="nav-bar" class="nav-bar">
+      <button class="nav-btn active" id="nav-home-btn">Home</button>
+      <button class="nav-btn" id="nav-menu-btn">Menu</button>
+      <button class="nav-btn" id="nav-order-btn">Order</button>
+      <button class="nav-btn" id="nav-profile-btn">Profile</button>
+    </nav>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="modal-forgot" class="modal">
+    <div class="modal-content">
+      <h3 class="accent-title" style="margin-bottom: 8px;">Reset Password</h3>
+      
+      <label>Registered Email Address</label>
+      <input type="email" id="forgot-email" placeholder="name@example.com" />
+
+      <div id="forgot-error" class="error-msg"></div>
+      <div id="forgot-success" style="color: var(--bright-green); font-size: 0.85rem; margin-bottom: 10px;"></div>
+
+      <button class="btn btn-bold-gold" id="btn-handle-password-reset">SHOW PASSWORD</button>
+      <button class="btn btn-text" id="btn-close-forgot" style="color: #ffffff; margin-top: 8px;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- SECURE MOBILE MONEY PAYMENT MODAL -->
+  <div id="modal-gateway" class="modal">
+    <div class="modal-content">
+      <div id="gateway-banner" class="gateway-header">SECURE PAYMENT GATEWAY</div>
+      
+      <p id="gateway-merchant-info" style="font-size: 0.8rem; text-align: center; margin-bottom: 12px; color: var(--gold-primary); font-weight: bold;"></p>
+
+      <label>Your Paying Number (10 Digits starting with 07)</label>
+      <input type="tel" id="gateway-phone" placeholder="0700000000" maxlength="10" />
+      
+      <label>Exact Amount (UGX)</label>
+      <input type="number" id="gateway-amount" placeholder="10000" />
+
+      <label>Transaction ID / Reference Note</label>
+      <input type="text" id="gateway-ref" placeholder="Enter Ref / Reason for secure tracking" />
+
+      <div id="gateway-status" style="display: none; font-size: 0.85rem; text-align: center; margin: 8px 0; color: var(--bright-green);"></div>
+
+      <button id="gateway-submit-btn" class="btn">CONFIRM SECURE PAYMENT</button>
+      <button class="btn btn-text" id="btn-close-gateway" style="color: #ffffff; margin-top: 8px;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- LOCAL FOOD MODAL -->
+  <div id="modal-food" class="modal">
+    <div class="modal-content">
+      <h3 id="local-food-title" class="accent-title">Select Food Sides</h3>
+      <p style="font-size: 0.85rem; margin-top: 4px;">Choose items to accompany your meal:</p>
+      
+      <div class="checkbox-grid" id="food-options-grid"></div>
+      <input type="text" id="local-food-location" placeholder="Delivery point / Table..." />
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button class="btn btn-secondary" id="btn-confirm-local-food" style="font-size: 0.8rem;">Add to Form</button>
+        <button class="btn btn-bold-green" id="btn-send-local-food-wa" style="font-size: 0.8rem;">Send Now</button>
+      </div>
+      <button class="btn btn-text" id="btn-close-food" style="color: #ffffff; margin-top: 8px;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- LOCALSTORAGE AUTH & APP LOGIC SCRIPT -->
+  <script>
+    const TARGET_WHATSAPP = "256752534379";
+    const MTN_PAYMENT_NUMBER = "0762683272";
+    const AIRTEL_PAYMENT_NUMBER = "0741540594";
+
+    const state = {
+      isLoggedIn: false,
+      currentUser: null,
+      tempPhoto: null,
+      currentLocalSauce: "",
+      currentLocalPrice: 0,
+      selectedProvider: "",
+      orderList: []
+    };
+
+    const pdfMenu = {
+      "English & Classic Breakfast": [
+        ["American Pancake/Tea/Yellow Banana", "5,000/=", 5000, false],
+        ["Chapati/Gravy/1 Sausage/Tea/Yellow Banana", "7,000/=", 7000, false],
+        ["Toast Bread/Panfried Eggs/Fruits/Tea", "7,000/=", 7000, false],
+        ["Boiled Eggs/Sausage/Fruits/Samosa/Tea", "7,000/=", 7000, false],
+        ["Meatball/Pineapple/Tea", "5,000/=", 5000, false],
+        ["Sandwich/Yellow Banana/Tea", "7,000/=", 7000, false],
+        ["Cappuccino/Customer Choice/Tea", "10,000/=", 10000, false],
+        ["Milk Tea", "5,000/=", 5000, false],
+        ["Black Tea", "3,000/=", 3000, false],
+        ["Katogo", "5,000/=", 5000, false],
+        ["Katogo/Beans", "5,000/=", 5000, false],
+        ["Chapati", "1,000/=", 1000, false],
+        ["Rolex", "4,000/=", 4000, false],
+        ["Omelette (2 Eggs)", "3,000/=", 3000, false],
+        ["Mandazi", "1,000/=", 1000, false],
+        ["Samosa", "1,000/=", 1000, false],
+        ["Mixed Fruits", "5,000/=", 5000, false],
+        ["Banana", "500/=", 500, false]
+      ],
+      "All Local Food (Served with Rice, Matooke, etc.)": [
+        ["Beef", "10,000/=", 10000, true],
+        ["G.nuts Plain", "6,000/=", 6000, true],
+        ["Fresh Fish", "12,000/=", 12000, true],
+        ["Pasted Fish", "10,000/=", 10000, true],
+        ["Pasted Beef", "10,000/=", 10000, true],
+        ["All Food & Gravy", "6,000/=", 6000, true],
+        ["Goat's Stew", "14,000/=", 14000, true],
+        ["Cow Peas/Beef", "10,000/=", 10000, true],
+        ["Beans", "6,000/=", 6000, true],
+        ["Liver", "15,000/=", 15000, true],
+        ["Cow Peas", "6,000/=", 6000, true],
+        ["Offals", "10,000/=", 10000, true],
+        ["Beef/Beans", "10,000/=", 10000, true],
+        ["Chicken Stew", "13,000/=", 13000, true],
+        ["Karo/Eshabwe", "10,000/=", 10000, true],
+        ["Food/Eshabwe", "10,000/=", 10000, true],
+        ["Platter (3 People)", "50,000/=", 50000, false],
+        ["Platter (5 People)", "75,000/=", 75000, false]
+      ]
+    };
+
+    const localFoodOptions = [
+      "Matooke", "Rice", "Posho", "Kalo", 
+      "Yam", "Sweet Potato", "Cassava", "Pumpkin"
+    ];
+
+    // LocalStorage Helper Methods
+    function getUsersDB() {
+      return JSON.parse(localStorage.getItem('sm_users_db') || '{}');
+    }
+
+    function saveUsersDB(db) {
+      localStorage.setItem('sm_users_db', JSON.stringify(db));
+    }
+
+    function getActiveSession() {
+      return JSON.parse(localStorage.getItem('sm_active_session') || 'null');
+    }
+
+    function setActiveSession(user) {
+      localStorage.setItem('sm_active_session', JSON.stringify(user));
+    }
+
+    function clearActiveSession() {
+      localStorage.removeItem('sm_active_session');
+    }
+
+    function isValidPhone(phone) {
+      return /^07\d{8}$/.test(phone);
+    }
+
+    function navigateTo(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`screen-${screenId}`).classList.add('active');
+      
+      const floatingBar = document.getElementById('top-floating-bar');
+      if (screenId === 'login' || screenId === 'signup') {
+        floatingBar.style.display = 'none';
+      } else {
+        floatingBar.style.display = 'flex';
+      }
+
+      document.getElementById('main-content-area').scrollTop = 0;
+    }
+
+    function switchTab(tabId, btnInstance) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      if (btnInstance) btnInstance.classList.add('active');
+      navigateTo(tabId);
+    }
+
+    function toggleNavbar(visible) {
+      document.getElementById('nav-bar').style.display = visible ? 'grid' : 'none';
+    }
+
+    function updateFloatingTotalUI() {
+      const totalNum = state.orderList.reduce((acc, item) => acc + item.price, 0);
+      document.getElementById('floating-count').innerText = state.orderList.length;
+      document.getElementById('floating-total').innerText = `UGX ${totalNum.toLocaleString()}`;
+    }
+
+    function syncOrderInputText() {
+      const orderInput = document.getElementById('order-items');
+      if (state.orderList.length === 0) {
+        orderInput.value = "";
+      } else {
+        orderInput.value = state.orderList.map(i => i.name).join(', ');
+      }
+      updateFloatingTotalUI();
+    }
+
+    // Authentication Logic (Offline via LocalStorage)
+    function handleLogin() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-password').value.trim();
+      const err = document.getElementById('login-error');
+      err.innerText = "";
+
+      if (!email || !pass) {
+        err.innerText = "Please fill in all email and password fields.";
+        return;
+      }
+
+      const users = getUsersDB();
+      const user = users[email];
+
+      if (!user || user.password !== pass) {
+        err.innerText = "Invalid email or password credentials.";
+        return;
+      }
+
+      setActiveSession(user);
+      onSessionChanged(user);
+    }
+
+    function handleSignUp() {
+      const nameInput = document.getElementById('signup-name');
+      const phoneInput = document.getElementById('signup-phone');
+      const emailInput = document.getElementById('signup-email');
+      const passInput = document.getElementById('signup-password');
+      const err = document.getElementById('signup-error');
+
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
+      const pass = passInput.value.trim();
+
+      err.innerText = "";
+      [nameInput, phoneInput, emailInput, passInput].forEach(i => i.classList.remove('input-error'));
+
+      if (!name) {
+        err.innerText = "Please enter your full name.";
+        nameInput.classList.add('input-error');
+        return;
+      }
+
+      if (!isValidPhone(phone)) {
+        err.innerText = "Phone number must start with '07' and be exactly 10 digits.";
+        phoneInput.classList.add('input-error');
+        return;
+      }
+
+      if (!email || !email.includes('@')) {
+        err.innerText = "Please enter a valid email address.";
+        emailInput.classList.add('input-error');
+        return;
+      }
+
+      if (pass.length < 6) {
+        err.innerText = "Password must be at least 6 characters long.";
+        passInput.classList.add('input-error');
+        return;
+      }
+
+      const users = getUsersDB();
+      if (users[email]) {
+        err.innerText = "That email address is already registered.";
+        emailInput.classList.add('input-error');
+        return;
+      }
+
+      const photoUrl = state.tempPhoto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+
+      const newUser = {
+        name: name,
+        phone: phone,
+        email: email,
+        password: pass,
+        displayName: `${name} (${phone})`,
+        photoURL: photoUrl
+      };
+
+      users[email] = newUser;
+      saveUsersDB(users);
+      setActiveSession(newUser);
+      onSessionChanged(newUser);
+    }
+
+    function handlePasswordReset() {
+      const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+      const err = document.getElementById('forgot-error');
+      const success = document.getElementById('forgot-success');
+
+      err.innerText = "";
+      success.innerText = "";
+
+      if (!email) {
+        err.innerText = "Please enter your registered email address.";
+        return;
+      }
+
+      const users = getUsersDB();
+      if (!users[email]) {
+        err.innerText = "No account found registered with this email.";
+        return;
+      }
+
+      success.innerText = `Password recovery: Your password is "${users[email].password}"`;
+    }
+
+    function handleLogout() {
+      state.orderList = [];
+      syncOrderInputText();
+      clearActiveSession();
+      onSessionChanged(null);
+    }
+
+    function onSessionChanged(user) {
+      if (user) {
+        state.isLoggedIn = true;
+        state.currentUser = user;
+        updateProfileUI();
+        toggleNavbar(true);
+        switchTab('home', document.getElementById('nav-home-btn'));
+      } else {
+        state.isLoggedIn = false;
+        state.currentUser = null;
+        toggleNavbar(false);
+        navigateTo('login');
+      }
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          state.tempPhoto = e.target.result;
+          if (state.currentUser) {
+            state.currentUser.photoURL = e.target.result;
+            
+            const users = getUsersDB();
+            if (users[state.currentUser.email]) {
+              users[state.currentUser.email].photoURL = e.target.result;
+              saveUsersDB(users);
+            }
+            setActiveSession(state.currentUser);
+            document.getElementById('profile-img').src = e.target.result;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function updateProfileUI() {
+      if (!state.currentUser) return;
+      document.getElementById('profile-name').innerText = state.currentUser.displayName || state.currentUser.name || "User Account";
+      document.getElementById('profile-email').innerText = state.currentUser.email || "";
+      document.getElementById('profile-img').src = state.currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+    }
+
+    function dispatchWhatsApp(message) {
+      const phone = TARGET_WHATSAPP;
+      const encodedText = encodeURIComponent(message);
+      
+      const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+      const intentUrl = `intent://send?phone=${phone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp;end`;
+
+      const fallbackLink = document.getElementById('direct-wa-link');
+      if (fallbackLink) {
+        fallbackLink.href = webUrl;
+        fallbackLink.style.display = 'inline-block';
+      }
+
+      try {
+        if (/Android/i.test(navigator.userAgent)) {
+          window.location.href = intentUrl;
+        } else {
+          window.location.href = webUrl;
+        }
+      } catch (e) {
+        window.location.href = webUrl;
+      }
+    }
+
+    function sendMainOrder() {
+      const loc = document.getElementById('order-location').value.trim();
+      const items = document.getElementById('order-items').value.trim();
+
+      if (!loc || !items) {
+        alert("Please specify your delivery location and items.");
+        return;
+      }
+
+      const totalNum = state.orderList.reduce((acc, item) => acc + item.price, 0);
+      const userName = state.currentUser ? (state.currentUser.displayName || state.currentUser.name) : "Guest";
+      const userEmail = state.currentUser ? state.currentUser.email : "N/A";
+
+      const message = 
+        `📦 *NEW ORDER*\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+        `👤 *Customer:* ${userName}\n` +
+        `📧 *Email:* ${userEmail}\n` +
+        `📍 *Location/Table:* ${loc}\n\n` +
+        `🛒 *ITEMS*\n` +
+        `• ${items}\n\n` +
+        `💰 *ESTIMATED TOTAL:* UGX ${totalNum.toLocaleString()}\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+        `Please confirm receipt!`;
+
+      dispatchWhatsApp(message);
+    }
+
+    function openGateway(provider) {
+      state.selectedProvider = provider;
+      const banner = document.getElementById('gateway-banner');
+      const submitBtn = document.getElementById('gateway-submit-btn');
+      const merchantInfo = document.getElementById('gateway-merchant-info');
+
+      const totalNum = state.orderList.reduce((acc, item) => acc + item.price, 0);
+      if (totalNum > 0) {
+        document.getElementById('gateway-amount').value = totalNum;
+      }
+
+      document.getElementById('gateway-status').style.display = 'none';
+
+      if (provider === 'mtn') {
+        banner.className = 'gateway-header btn-mtn';
+        banner.innerText = 'MTN MOMO PAY';
+        merchantInfo.innerText = `Send Money Directly to MTN Number: ${MTN_PAYMENT_NUMBER}`;
+        submitBtn.className = 'btn btn-mtn';
+      } else {
+        banner.className = 'gateway-header btn-airtel';
+        banner.innerText = 'AIRTEL MONEY PAY';
+        merchantInfo.innerText = `Send Money Directly to Airtel Number: ${AIRTEL_PAYMENT_NUMBER}`;
+        submitBtn.className = 'btn btn-airtel';
+      }
+
+      openModal('modal-gateway');
+    }
+
+    function processPayment() {
+      const phone = document.getElementById('gateway-phone').value.trim();
+      const amount = document.getElementById('gateway-amount').value.trim();
+      const ref = document.getElementById('gateway-ref').value.trim();
+      const status = document.getElementById('gateway-status');
+
+      if (!isValidPhone(phone)) {
+        alert("Paying phone number must start with '07' and be exactly 10 digits.");
+        return;
+      }
+
+      if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid payment amount.');
+        return;
+      }
+
+      if (!ref || ref.length < 3) {
+        alert('For accuracy & safety, please enter a valid Transaction ID or Reference Note.');
+        return;
+      }
+
+      const targetNumber = state.selectedProvider === 'mtn' ? MTN_PAYMENT_NUMBER : AIRTEL_PAYMENT_NUMBER;
+
+      status.innerText = `Verifying payment of UGX ${amount} to ${targetNumber}...`;
+      status.style.display = 'block';
+
+      setTimeout(() => {
+        const confirmMsg = 
+          `💳 *MOBILE MONEY PAYMENT CONFIRMATION*\n` +
+          `━━━━━━━━━━━━━━━━━━\n` +
+          `• *Method:* ${state.selectedProvider.toUpperCase()}\n` +
+          `• *Target Number:* ${targetNumber}\n` +
+          `• *Payer Contact:* ${phone}\n` +
+          `• *Amount:* UGX ${amount}\n` +
+          `• *Ref/Txn ID:* ${ref}\n` +
+          `━━━━━━━━━━━━━━━━━━\n` +
+          `Payment details logged securely. Please verify receipt.`;
+
+        dispatchWhatsApp(confirmMsg);
+        closeModal('modal-gateway');
+      }, 1200);
+    }
+
+    function renderMenu() {
+      const container = document.getElementById('menu-container');
+      container.innerHTML = "";
+
+      for (const [category, items] of Object.entries(pdfMenu)) {
+        const catHeader = document.createElement('h3');
+        catHeader.className = 'accent-title';
+        catHeader.style.marginTop = '16px';
+        catHeader.style.marginBottom = '8px';
+        catHeader.innerText = category.toUpperCase();
+        container.appendChild(catHeader);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        items.forEach(([name, displayPrice, rawPrice, isLocal]) => {
+          const itemRow = document.createElement('div');
+          itemRow.className = 'menu-item';
+          
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'menu-item-name';
+          nameSpan.textContent = `• ${name}`;
+          
+          const infoDiv = document.createElement('div');
+          infoDiv.className = 'menu-item-info';
+          infoDiv.appendChild(nameSpan);
+          
+          const priceSpan = document.createElement('span');
+          priceSpan.className = 'menu-item-price';
+          priceSpan.textContent = `UGX ${rawPrice.toLocaleString()}`;
+          
+          const addBtn = document.createElement('button');
+          addBtn.className = 'btn-add';
+          addBtn.textContent = '+';
+          addBtn.onclick = () => handleAddClick(name, rawPrice, isLocal);
+
+          itemRow.appendChild(infoDiv);
+          itemRow.appendChild(priceSpan);
+          itemRow.appendChild(addBtn);
+
+          card.appendChild(itemRow);
+        });
+
+        container.appendChild(card);
+      }
+    }
+
+    function handleAddClick(name, price, isLocal) {
+      if (isLocal) {
+        state.currentLocalSauce = name;
+        state.currentLocalPrice = price;
+        document.getElementById('local-food-title').innerText = `Sides for: ${name}`;
+        
+        const grid = document.getElementById('food-options-grid');
+        grid.innerHTML = "";
+        localFoodOptions.forEach(food => {
+          grid.innerHTML += `
+            <label class="checkbox-item">
+              <input type="checkbox" value="${food}"> ${food}
+            </label>
+          `;
+        });
+        
+        openModal('modal-food');
+      } else {
+        state.orderList.push({ name: `1x ${name}`, price: price });
+        syncOrderInputText();
+      }
+    }
+
+    function getSelectedCheckboxes() {
+      const checked = [];
+      document.querySelectorAll('#food-options-grid input[type="checkbox"]:checked').forEach(cb => {
+        checked.push(cb.value);
+      });
+      return checked.length > 0 ? checked.join(', ') : 'Plain';
+    }
+
+    function confirmLocalFoodToForm() {
+      const selectedStr = getSelectedCheckboxes();
+      const itemFormatted = `1x ${state.currentLocalSauce} (${selectedStr})`;
+      
+      state.orderList.push({ name: itemFormatted, price: state.currentLocalPrice });
+      syncOrderInputText();
+
+      const locVal = document.getElementById('local-food-location').value.trim();
+      if (locVal) document.getElementById('order-location').value = locVal;
+
+      closeModal('modal-food');
+    }
+
+    function sendLocalFoodDirectWhatsApp() {
+      const selectedStr = getSelectedCheckboxes();
+      const locVal = document.getElementById('local-food-location').value.trim() || 'Not specified';
+      const userName = state.currentUser ? (state.currentUser.displayName || state.currentUser.name) : "Guest";
+      const userEmail = state.currentUser ? state.currentUser.email : "N/A";
+
+      const message = 
+        `🍽️ *LOCAL MEAL ORDER*\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+        `👤 *Customer:* ${userName}\n` +
+        `📧 *Email:* ${userEmail}\n` +
+        `📍 *Delivery:* ${locVal}\n\n` +
+        `🥘 *DETAILS*\n` +
+        `• *Main:* ${state.currentLocalSauce}\n` +
+        `• *Sides:* ${selectedStr}\n` +
+        `💰 *PRICE:* UGX ${state.currentLocalPrice.toLocaleString()}\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+        `Please confirm!`;
+
+      dispatchWhatsApp(message);
+      closeModal('modal-food');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // Event Bindings
+    document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
+    document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
+    document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
+    document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
+    
+    document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
+    document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
+    document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
+    document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
+    
+    document.getElementById('btn-gateway-mtn').addEventListener('click', () => openGateway('mtn'));
+    document.getElementById('btn-gateway-airtel').addEventListener('click', () => openGateway('airtel'));
+    document.getElementById('gateway-submit-btn').addEventListener('click', processPayment);
+    document.getElementById('btn-close-gateway').addEventListener('click', () => closeModal('modal-gateway'));
+    
+    document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+    document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
+    document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
+    document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
+    
+    document.getElementById('btn-upload-photo').addEventListener('click', () => document.getElementById('signup-photo').click());
+    document.getElementById('signup-photo').addEventListener('change', handlePhotoUpload);
+    document.getElementById('btn-change-photo').addEventListener('click', () => document.getElementById('profile-photo-input').click());
+    document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+
+    document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
+    document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
+    document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
+    document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
+
+    (function initApp() {
+      renderMenu();
+      updateFloatingTotalUI();
+
+      const savedUser = getActiveSession();
+      if (savedUser) {
+        onSessionChanged(savedUser);
+      } else {
+        toggleNavbar(false);
+        navigateTo('login');
+      }
+    })();
+  </script>
+</body>
+</html>
