@@ -1548,7 +1548,7 @@
     }
 
     function dialCode(code) {
-      window.location.href = `tel:*165*3*${code}%23`;
+      window.location.href = `tel:${encodeURIComponent(code)}`;
     }
 
     function renderMenu() {
@@ -1743,12 +1743,12 @@
     });
 
     // MTN MoMo Branch Actions
-    document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('924384'));
-    document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('91126006'));
+    document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*924384#'));
+    document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*91126006#'));
 
     // Airtel Money Branch Actions
-    document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('6627096'));
-    document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('7139511'));
+    document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*165*9*6627096#'));
+    document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*165*9*7139511#'));
 
     document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
     document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
