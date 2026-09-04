@@ -10,6 +10,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
 
+  <!-- FIREBASE & GOOGLE ANALYTICS INTEGRATION -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCSkO34QvzwqQ5mEehrdSZm2o925WE-fw0",
+      authDomain: "saucy-meatbal.firebaseapp.com",
+      projectId: "saucy-meatbal",
+      storageBucket: "saucy-meatbal.firebasestorage.app",
+      messagingSenderId: "45472933451",
+      appId: "1:45472933451:web:57a4287af5340ed4918fce",
+      measurementId: "G-WGL39SEM4P"
+    };
+
+    // Initialize Firebase & Analytics globally
+    const app = initializeApp(firebaseConfig);
+    window.analytics = getAnalytics(app);
+    window.logFirebaseEvent = (eventName, params = {}) => {
+      if (window.analytics) {
+        logEvent(window.analytics, eventName, params);
+      }
+    };
+  </script>
+
   <style>
     :root {
       /* Forest Green Theme */
@@ -294,7 +319,6 @@
       scrollbar-width: none;
     }
 
-    /* SLIGHTLY REDUCED DISH CARD SIZE FOR SMOOTH SCROLLING */
     .dish-card {
       min-width: 140px;
       width: 140px;
@@ -635,7 +659,6 @@
       color: var(--bright-green);
     }
 
-    /* Center Highlighted Order Circle */
     .nav-btn.nav-center {
       background: var(--bright-green);
       color: #04140c;
@@ -665,7 +688,6 @@
 
       <section id="screen-login" class="screen active">
         <div style="text-align: center; margin: 30px 0 15px;">
-          <!-- MATCHED PHOTO BRANDING TITLE -->
           <div class="brand-container">
             <div class="brand-top-row">
               <span class="brand-saucy">Saucy</span>
@@ -727,7 +749,6 @@
         
         <div class="hero-header">
           <div class="icon-btn">☰</div>
-          <!-- MATCHED PHOTO BRANDING TITLE (COMPACT) -->
           <div class="brand-container compact">
             <div class="brand-top-row">
               <span class="brand-saucy">Saucy</span>
@@ -777,7 +798,6 @@
           <a href="#" class="view-all" id="link-view-all">View all &rsaquo;</a>
         </div>
 
-        <!-- HORIZONTAL CAROUSEL DISPLAYING ALL SPECIAL DISHES IN COMPACT SIZE -->
         <div class="dishes-scroll" id="home-dishes-container"></div>
 
         <div class="promo-banner">
@@ -1018,6 +1038,11 @@
       }
 
       document.getElementById('main-content-area').scrollTop = 0;
+
+      // Track screen view event in Firebase
+      if (window.logFirebaseEvent) {
+        window.logFirebaseEvent('page_view', { page_title: screenId });
+      }
     }
 
     function switchTab(tabId, btnInstance) {
@@ -1066,6 +1091,9 @@
       }
 
       setActiveSession(user);
+      if (window.logFirebaseEvent) {
+        window.logFirebaseEvent('login', { method: 'email' });
+      }
       onSessionChanged(user);
     }
 
@@ -1129,6 +1157,9 @@
       users[email] = newUser;
       saveUsersDB(users);
       setActiveSession(newUser);
+      if (window.logFirebaseEvent) {
+        window.logFirebaseEvent('sign_up', { method: 'email' });
+      }
       onSessionChanged(newUser);
     }
 
@@ -1243,6 +1274,13 @@
         return;
       }
 
+      if (window.logFirebaseEvent) {
+        window.logFirebaseEvent('purchase', {
+          items: items,
+          location: loc
+        });
+      }
+
       const message = buildFormattedWAMessage("Main Order", items);
       dispatchWhatsApp(message);
     }
@@ -1318,6 +1356,10 @@
     }
 
     function handleAddClick(name, price, isCustomizable) {
+      if (window.logFirebaseEvent) {
+        window.logFirebaseEvent('add_to_cart', { item_name: name, value: price });
+      }
+
       if (isCustomizable) {
         state.currentLocalSauce = name;
         state.currentLocalPrice = price;
@@ -1363,7 +1405,6 @@
         }
       }
 
-      // Add 3,000 extra for ½pilao EXCEPT for Panfried Goat and Panfried Chicken
       if (hasPilao && hasOtherThanPilao && sauceName !== "Panfried Goat" && sauceName !== "Panfried Chicken") {
         finalPrice += 3000;
       }
@@ -1391,6 +1432,13 @@
       const selectedArray = getSelectedCheckboxes();
       const selectedStr = selectedArray.length > 0 ? selectedArray.join(', ') : 'Plain';
       
+      if (window.logFirebaseEvent) {
+        window.logFirebaseEvent('purchase', {
+          item_name: state.currentLocalSauce,
+          options: selectedStr
+        });
+      }
+
       const message = buildFormattedWAMessage(state.currentLocalSauce, selectedStr);
 
       dispatchWhatsApp(message);
@@ -1455,8 +1503,4 @@
     })();
   </script>
 </body>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-  import { getAnalytics }
 </html>
