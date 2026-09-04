@@ -4,16 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Saucy Meatball Restaurant</title>
+  
+  <!-- FONT IMPORTS FOR EXACT MATCHING -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg-dark: #06140e;
-      --card-bg: rgba(18, 48, 36, 0.75);
-      --card-border: rgba(82, 183, 136, 0.25);
-      --input-bg: #0d281e;
+      /* Forest Green Theme */
+      --bg-dark: #081c15;
+      --card-bg: #1b4332;
+      --card-border: #2d6a4f;
+      --input-bg: #0b2b1f;
       
-      --emerald-accent: #2ec4b6;
-      --primary-green: #52b788;
-      --bright-green: #25d366;
+      --forest-primary: #1b4332;
+      --forest-light: #2d6a4f;
+      --forest-accent: #40916c;
+      --bright-green: #52b788;
       
       --gold-primary: #ffd700;
       --gold-dark: #b8860b;
@@ -40,13 +48,13 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      background-image: radial-gradient(circle at 50% 10%, #0f382a 0%, #06140e 100%);
+      background-image: radial-gradient(circle at 50% 10%, #113829 0%, #081c15 100%);
     }
 
     .app-container {
       width: 100%;
       max-width: 440px;
-      background-color: rgba(6, 20, 14, 0.95);
+      background-color: #081c15;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -56,13 +64,14 @@
       border-right: 1px solid var(--card-border);
     }
 
+    /* TOP FLOATING BAR */
     .top-floating-bar {
       position: sticky;
       top: 0;
       z-index: 900;
-      background: rgba(6, 20, 14, 0.95);
+      background: rgba(8, 28, 21, 0.95);
       backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--gold-dark);
+      border-bottom: 1px solid var(--card-border);
       padding: 10px 16px;
       display: none;
       justify-content: space-between;
@@ -70,21 +79,11 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
 
-    .floating-text {
-      font-size: 0.85rem;
-      color: var(--subtext);
-      font-weight: 600;
-    }
-
-    .floating-price {
-      font-size: 1.05rem;
-      color: var(--gold-primary);
-      font-weight: 900;
-    }
+    .floating-text { font-size: 0.85rem; color: var(--subtext); font-weight: 600; }
+    .floating-price { font-size: 1.05rem; color: var(--gold-primary); font-weight: 900; }
 
     .content-area {
       flex: 1;
-      padding: 20px 16px;
       padding-bottom: 90px;
       overflow-y: auto;
     }
@@ -92,37 +91,320 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    .brand-title {
-      font-size: 1.7rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-align: center;
-      background: linear-gradient(135deg, #ffffff 0%, var(--primary-green) 50%, var(--emerald-accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 2px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    /* EXACT SIGNAGE RESTAURANT BRANDING TITLE STYLES */
+    .brand-container {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 0.85;
+      margin: 10px 0;
+      width: 100%;
     }
 
-    .subtitle {
+    .brand-top-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .brand-saucy {
+      font-family: 'Great Vibes', cursive;
+      color: #ffffff;
+      font-size: 2.8rem;
+      font-weight: 400;
+      line-height: 0.8;
+      text-shadow: 0 0 3px #1b4332, 0 0 5px #081c15;
+      margin-right: -10px;
+      z-index: 2;
+    }
+
+    .brand-meatball {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #ff3838;
+      letter-spacing: 2px;
+      -webkit-text-stroke: 1px #ffffff;
+      text-shadow: 
+        -1px -1px 0 #fff,  
+         1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+         1px  1px 0 #fff;
+    }
+
+    .brand-restaurant {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #0d281e;
+      letter-spacing: 2px;
+      -webkit-text-stroke: 1.5px #ffffff;
+      text-shadow: 
+        -1px -1px 0 #fff,  
+         1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+         1px  1px 0 #fff,
+         0 0 8px rgba(255, 255, 255, 0.4);
+      margin-top: 4px;
+    }
+
+    /* Small variant for headers */
+    .brand-container.compact .brand-saucy { font-size: 1.8rem; margin-right: -6px; }
+    .brand-container.compact .brand-meatball { font-size: 1.2rem; letter-spacing: 1px; }
+    .brand-container.compact .brand-restaurant { font-size: 1.3rem; letter-spacing: 1px; }
+
+    /* DESIGN SYSTEM */
+    .hero-header {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .hero-banner {
+      padding: 0 16px 20px;
+      position: relative;
+    }
+
+    .hero-tag {
+      color: var(--bright-green);
+      font-style: italic;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .hero-desc {
       color: var(--subtext);
       font-size: 0.85rem;
-      text-align: center;
+      margin-bottom: 18px;
+      line-height: 1.4;
     }
 
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-pill-primary {
+      background-color: var(--bright-green);
+      color: #04140c;
+      font-weight: 700;
+      border-radius: 30px;
+      padding: 12px 22px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+    }
+
+    .btn-pill-outline {
+      background: transparent;
+      color: #ffffff;
+      font-weight: 600;
+      border-radius: 30px;
+      padding: 12px 22px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* FEATURE HIGHLIGHT GRID */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 12px;
+      background: rgba(27, 67, 50, 0.4);
+      margin: 10px 16px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+    }
+
+    .feature-item {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--subtext);
+    }
+
+    .feature-icon {
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .feature-title {
+      color: #fff;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* POPULAR DISHES HORIZONTAL / GRID DECK */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px 12px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .view-all {
+      color: var(--bright-green);
+      font-size: 0.85rem;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .dishes-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 0 16px 20px;
+      scrollbar-width: none;
+    }
+
+    /* SLIGHTLY REDUCED DISH CARD SIZE FOR SMOOTH SCROLLING */
+    .dish-card {
+      min-width: 140px;
+      width: 140px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 8px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .badge-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #e63946;
+      color: #fff;
+      font-size: 0.55rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .dish-img-placeholder {
+      width: 100%;
+      height: 85px;
+      background: var(--forest-accent);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .dish-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .dish-desc {
+      font-size: 0.65rem;
+      color: var(--subtext);
+      margin-bottom: 8px;
+    }
+
+    .dish-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .dish-price {
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--bright-green);
+    }
+
+    .btn-plus-small {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--bright-green);
+      color: #04140c;
+      border: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* PROMO BANNER */
+    .promo-banner {
+      margin: 0 16px 20px;
+      background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .promo-title { font-size: 0.75rem; color: var(--bright-green); font-weight: 800; }
+    .promo-discount { font-size: 1rem; font-weight: 900; color: #fff; margin: 4px 0; }
+
+    /* UI CARDS & INPUTS */
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 18px;
-      margin-bottom: 16px;
+      margin: 0 16px 16px;
       border: 1px solid var(--card-border);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
     }
 
     .accent-title {
-      color: var(--primary-green);
+      color: var(--bright-green);
       font-size: 1rem;
       font-weight: 700;
     }
@@ -162,7 +444,7 @@
     }
 
     input:focus, select:focus {
-      border-color: var(--primary-green);
+      border-color: var(--bright-green);
       box-shadow: 0 0 8px rgba(82, 183, 136, 0.4);
     }
 
@@ -205,7 +487,7 @@
     .btn-airtel { background-color: var(--airtel-red); color: #fff; font-weight: bold; }
     .btn-danger { background-color: var(--danger-red); color: #fff; font-weight: bold; }
     .btn-secondary { background: var(--input-bg); color: #fff; border: 1px solid var(--card-border); }
-    .btn-text { background: transparent; color: var(--primary-green); height: auto; padding: 8px 0; font-weight: 600; }
+    .btn-text { background: transparent; color: var(--bright-green); height: auto; padding: 8px 0; font-weight: 600; }
 
     .error-msg {
       color: #ff6b6b;
@@ -257,7 +539,7 @@
       height: 32px;
       min-width: 32px;
       border-radius: 8px;
-      background-color: var(--primary-green);
+      background-color: var(--bright-green);
       color: #04140c;
       border: none;
       font-size: 1.2rem;
@@ -279,21 +561,13 @@
     .modal.active { display: flex; }
 
     .modal-content {
-      background: #0d231a;
-      border: 1px solid var(--primary-green);
+      background: var(--card-bg);
+      border: 1px solid var(--bright-green);
       border-radius: 16px;
       width: 100%;
       max-width: 400px;
       padding: 20px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-    }
-
-    .gateway-header {
-      padding: 12px;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: bold;
-      margin-bottom: 16px;
     }
 
     .checkbox-grid {
@@ -318,34 +592,58 @@
 
     .checkbox-item input { accent-color: var(--bright-green); }
 
+    /* FLOATING BOTTOM NAV IN IMAGE STYLE */
     .nav-bar {
       position: fixed;
-      bottom: 0;
-      width: 100%;
-      max-width: 440px;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 408px;
       height: 65px;
-      background-color: rgba(6, 20, 14, 0.98);
+      background-color: #0d281e;
       display: none;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      padding: 8px;
-      border-top: 1px solid var(--card-border);
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 6px;
+      border-radius: 35px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      z-index: 999;
     }
 
     .nav-btn {
       background-color: transparent;
       color: var(--subtext);
       border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.85rem;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.65rem;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-align: center;
     }
+
+    .nav-btn .nav-icon { font-size: 1.1rem; }
 
     .nav-btn.active {
       background-color: var(--card-bg);
-      color: var(--gold-primary);
-      border: 1px solid var(--gold-dark);
+      color: var(--bright-green);
+    }
+
+    /* Center Highlighted Order Circle */
+    .nav-btn.nav-center {
+      background: var(--bright-green);
+      color: #04140c;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      margin: auto;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -353,7 +651,6 @@
 
   <div class="app-container">
     
-    <!-- TOP FLOATING AUTO-SUM BAR -->
     <div class="top-floating-bar" id="top-floating-bar">
       <div>
         <span class="floating-text">Total Order Items: </span>
@@ -366,11 +663,17 @@
 
     <div class="content-area" id="main-content-area">
 
-      <!-- LOGIN SCREEN -->
       <section id="screen-login" class="screen active">
-        <div style="text-align: center; margin: 20px 0 20px;">
-          <h1 class="brand-title">SAUCY MEATBALL</h1>
-          <p class="subtitle">Satisfy your deep cravings</p>
+        <div style="text-align: center; margin: 30px 0 15px;">
+          <!-- MATCHED PHOTO BRANDING TITLE -->
+          <div class="brand-container">
+            <div class="brand-top-row">
+              <span class="brand-saucy">Saucy</span>
+              <span class="brand-meatball">MEATBALL</span>
+            </div>
+            <div class="brand-restaurant">RESTAURANT</div>
+          </div>
+          <p class="hero-tag" style="margin-top: 5px;">Satisfy your deep cravings</p>
         </div>
         <div class="card">
           <label>Email Address</label>
@@ -392,9 +695,8 @@
         </button>
       </section>
 
-      <!-- SIGNUP SCREEN -->
       <section id="screen-signup" class="screen">
-        <h2 class="brand-title" style="margin-bottom: 16px;">REGISTER ACCOUNT</h2>
+        <h2 style="text-align:center; margin:20px 0; color:#fff;" class="accent-title">REGISTER ACCOUNT</h2>
         <div class="card">
           <label>Full Name <span style="color:#ff6b6b;">*</span></label>
           <input type="text" id="signup-name" placeholder="John Doe" />
@@ -416,33 +718,98 @@
           
           <button class="btn btn-bold-gold" id="btn-handle-signup">REGISTER ACCOUNT</button>
         </div>
-        <button class="btn btn-text" id="btn-goto-login" style="color: #ffffff;">
+        <button class="btn btn-text" id="btn-goto-login" style="color: #ffffff; display: block; margin: auto;">
           Already registered? Log In
         </button>
       </section>
 
-      <!-- HOME / ORDER SCREEN -->
       <section id="screen-home" class="screen">
-        <div style="margin-bottom: 14px; text-align: center;">
-          <h1 class="brand-title">SAUCY MEATBALL</h1>
-          <p class="subtitle">MTN: 0762683272 | Airtel: 0741540594</p>
+        
+        <div class="hero-header">
+          <div class="icon-btn">☰</div>
+          <!-- MATCHED PHOTO BRANDING TITLE (COMPACT) -->
+          <div class="brand-container compact">
+            <div class="brand-top-row">
+              <span class="brand-saucy">Saucy</span>
+              <span class="brand-meatball">MEATBALL</span>
+            </div>
+            <div class="brand-restaurant">RESTAURANT</div>
+          </div>
+          <div class="icon-btn">🔔</div>
         </div>
 
-        <div class="card" style="border-left: 4px solid var(--gold-primary);">
-          <h2 style="font-size: 1.1rem; margin-bottom: 4px; color: #ffffff;">Welcome Back!</h2>
-          <p class="subtitle" style="text-align: left;">Your account is authenticated & ready to order.</p>
+        <div class="hero-banner">
+          <p class="hero-tag">Welcome back!</p>
+          <h1 class="hero-title">Big flavor.<br/>Bigger cravings.</h1>
+          <p class="hero-desc">Juicy meatballs. Rich sauces.<br/>Unforgettable meals.</p>
+          
+          <div class="hero-actions">
+            <button class="btn-pill-primary" id="btn-hero-order">Order Now →</button>
+            <button class="btn-pill-outline" id="btn-hero-menu">View Menu</button>
+          </div>
         </div>
 
-        <h3 class="accent-title" style="margin-bottom: 8px;">Mobile Money Express Checkout</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
-          <button class="btn btn-mtn" id="btn-gateway-mtn">MTN MoMo</button>
-          <button class="btn btn-airtel" id="btn-gateway-airtel">Airtel Money</button>
+        <div class="features-grid">
+          <div class="feature-item">
+            <span class="feature-icon">🛵</span>
+            <span class="feature-title">Fast Delivery</span>
+            At your doorstep
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🍳</span>
+            <span class="feature-title">Fresh & Hot</span>
+            Cooked to order
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🏅</span>
+            <span class="feature-title">Best Quality</span>
+            Premium ingredients
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">💳</span>
+            <span class="feature-title">Secure Pay</span>
+            Multiple options
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2 class="section-title">Special Dishes</h2>
+          <a href="#" class="view-all" id="link-view-all">View all &rsaquo;</a>
+        </div>
+
+        <!-- HORIZONTAL CAROUSEL DISPLAYING ALL SPECIAL DISHES IN COMPACT SIZE -->
+        <div class="dishes-scroll" id="home-dishes-container"></div>
+
+        <div class="promo-banner">
+          <div>
+            <p class="promo-title">SPECIAL PROMO</p>
+            <p class="promo-discount">(buy one pizza and get one free)</p>
+            <p style="font-size:0.75rem; color:var(--subtext);">Available every Friday</p>
+          </div>
+          <button class="btn-pill-primary" style="padding: 8px 16px; font-size: 0.8rem;" id="btn-promo-order">Order Now</button>
         </div>
 
         <div class="card">
-          <h3 class="accent-title" style="margin-bottom: 12px;">Place Your Order</h3>
-          <label>Delivery Point / Table Number</label>
-          <input type="text" id="order-location" placeholder="e.g., Table 4 or Ntinda Complex..." />
+          <h3 class="accent-title" style="margin-bottom: 8px;">Direct Mobile Money Dial</h3>
+          <p class="dish-desc" style="margin-bottom:12px;">Tap below to auto-dial mobile payment codes:</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <button class="btn btn-mtn" id="btn-dial-mtn">pay with mtn</button>
+            <button class="btn btn-airtel" id="btn-dial-airtel">pay with airtel</button>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <button class="btn btn-secondary" id="btn-copy-mtn-code" style="font-size:0.75rem;">📋 Copy MTN Code (924384)</button>
+            <button class="btn btn-secondary" id="btn-copy-airtel-code" style="font-size:0.75rem;">📋 Copy Airtel Code (6627096)</button>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="screen-order" class="screen">
+        <h1 style="color:#fff; padding:16px; font-size:1.4rem;">PLACE YOUR ORDER</h1>
+        <div class="card">
+          <label>Location</label>
+          <input type="text" id="order-location" placeholder="e.g., Ntinda Complex..." />
           
           <label>Order Items</label>
           <input type="text" id="order-items" placeholder="Tap '+' from Menu tab to auto-fill..." />
@@ -457,16 +824,14 @@
         </div>
       </section>
 
-      <!-- MENU SCREEN -->
       <section id="screen-menu" class="screen">
-        <h1 class="brand-title" style="margin-bottom: 12px;">RESTAURANT MENU</h1>
+        <h1 style="color:#fff; padding:16px 16px 0; font-size:1.4rem;">RESTAURANT MENU</h1>
         <div id="menu-container"></div>
       </section>
 
-      <!-- PROFILE SCREEN -->
       <section id="screen-profile" class="screen">
-        <h2 class="brand-title" style="text-align: left; margin-bottom: 12px;">MY ACCOUNT</h2>
-        <div class="card">
+        <h2 style="color:#fff; padding:16px 16px 0; font-size:1.4rem;">MY ACCOUNT</h2>
+        <div class="card" style="margin-top:12px;">
           <div class="avatar-container">
             <img id="profile-img" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" />
             <input type="file" id="profile-photo-input" accept="image/*" style="display: none;" />
@@ -476,7 +841,7 @@
           <div style="text-align: center; margin-bottom: 16px;">
             <p><strong id="profile-name" style="font-size: 1.1rem; color: #fff;">User Account</strong></p>
             <p id="profile-email" style="font-size: 0.85rem; color: var(--subtext); margin-top: 2px;">user@example.com</p>
-            <p class="subtitle" style="margin-top: 6px; color: var(--bright-green);">Status: Active & Authenticated</p>
+            <p class="dish-desc" style="margin-top: 6px; color: var(--bright-green);">Status: Active & Authenticated</p>
           </div>
 
           <button class="btn btn-danger" id="btn-handle-logout">LOG OUT</button>
@@ -485,16 +850,15 @@
 
     </div>
 
-    <!-- NAVIGATION BAR -->
     <nav id="nav-bar" class="nav-bar">
-      <button class="nav-btn active" id="nav-home-btn">Home</button>
-      <button class="nav-btn" id="nav-menu-btn">Menu</button>
-      <button class="nav-btn" id="nav-order-btn">Order</button>
-      <button class="nav-btn" id="nav-profile-btn">Profile</button>
+      <button class="nav-btn active" id="nav-home-btn"><span class="nav-icon">🏠</span>Home</button>
+      <button class="nav-btn" id="nav-menu-btn"><span class="nav-icon">📖</span>Menu</button>
+      <button class="nav-btn nav-center" id="nav-order-btn"><span class="nav-icon">🛍️</span></button>
+      <button class="nav-btn" id="nav-orders-list-btn"><span class="nav-icon">📋</span>Place Order</button>
+      <button class="nav-btn" id="nav-profile-btn"><span class="nav-icon">👤</span>Profile</button>
     </nav>
   </div>
 
-  <!-- FORGOT PASSWORD MODAL -->
   <div id="modal-forgot" class="modal">
     <div class="modal-content">
       <h3 class="accent-title" style="margin-bottom: 8px;">Reset Password</h3>
@@ -510,51 +874,24 @@
     </div>
   </div>
 
-  <!-- SECURE MOBILE MONEY PAYMENT MODAL -->
-  <div id="modal-gateway" class="modal">
-    <div class="modal-content">
-      <div id="gateway-banner" class="gateway-header">SECURE PAYMENT GATEWAY</div>
-      
-      <p id="gateway-merchant-info" style="font-size: 0.8rem; text-align: center; margin-bottom: 12px; color: var(--gold-primary); font-weight: bold;"></p>
-
-      <label>Your Paying Number (10 Digits starting with 07)</label>
-      <input type="tel" id="gateway-phone" placeholder="0700000000" maxlength="10" />
-      
-      <label>Exact Amount (UGX)</label>
-      <input type="number" id="gateway-amount" placeholder="10000" />
-
-      <label>Transaction ID / Reference Note</label>
-      <input type="text" id="gateway-ref" placeholder="Enter Ref / Reason for secure tracking" />
-
-      <div id="gateway-status" style="display: none; font-size: 0.85rem; text-align: center; margin: 8px 0; color: var(--bright-green);"></div>
-
-      <button id="gateway-submit-btn" class="btn">CONFIRM SECURE PAYMENT</button>
-      <button class="btn btn-text" id="btn-close-gateway" style="color: #ffffff; margin-top: 8px;">Cancel</button>
-    </div>
-  </div>
-
-  <!-- LOCAL FOOD MODAL -->
   <div id="modal-food" class="modal">
     <div class="modal-content">
-      <h3 id="local-food-title" class="accent-title">Select Food Sides</h3>
-      <p style="font-size: 0.85rem; margin-top: 4px;">Choose items to accompany your meal:</p>
+      <h3 id="local-food-title" class="accent-title">Select Accompaniment Foods</h3>
+      <p style="font-size: 0.85rem; margin-top: 4px; color: var(--subtext);">Choose sides for your dish:</p>
       
       <div class="checkbox-grid" id="food-options-grid"></div>
-      <input type="text" id="local-food-location" placeholder="Delivery point / Table..." />
+      <input type="text" id="local-food-location" placeholder="Location..." />
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <button class="btn btn-secondary" id="btn-confirm-local-food" style="font-size: 0.8rem;">Add to Form</button>
-        <button class="btn btn-bold-green" id="btn-send-local-food-wa" style="font-size: 0.8rem;">Send Now</button>
+        <button class="btn btn-secondary" id="btn-confirm-local-food" style="font-size: 0.8rem;">Add to Order</button>
+        <button class="btn btn-bold-green" id="btn-send-local-food-wa" style="font-size: 0.8rem;">Send Direct</button>
       </div>
       <button class="btn btn-text" id="btn-close-food" style="color: #ffffff; margin-top: 8px;">Cancel</button>
     </div>
   </div>
 
-  <!-- LOCALSTORAGE AUTH & APP LOGIC SCRIPT -->
   <script>
     const TARGET_WHATSAPP = "256752534379";
-    const MTN_PAYMENT_NUMBER = "0762683272";
-    const AIRTEL_PAYMENT_NUMBER = "0741540594";
 
     const state = {
       isLoggedIn: false,
@@ -562,12 +899,11 @@
       tempPhoto: null,
       currentLocalSauce: "",
       currentLocalPrice: 0,
-      selectedProvider: "",
       orderList: []
     };
 
     const pdfMenu = {
-      "English & Classic Breakfast": [
+      "english and classic breakfast": [
         ["American Pancake/Tea/Yellow Banana", "5,000/=", 5000, false],
         ["Chapati/Gravy/1 Sausage/Tea/Yellow Banana", "7,000/=", 7000, false],
         ["Toast Bread/Panfried Eggs/Fruits/Tea", "7,000/=", 7000, false],
@@ -587,7 +923,22 @@
         ["Mixed Fruits", "5,000/=", 5000, false],
         ["Banana", "500/=", 500, false]
       ],
-      "All Local Food (Served with Rice, Matooke, etc.)": [
+      "snacks and take away": [
+        ["Pilao", "10,000/=", 10000, false],
+        ["Chicken Piece", "8,000/=", 8000, false],
+        ["Pilao Chicken Piece", "18,000/=", 18000, false],
+        ["Plain Chips", "6,000/=", 6000, false],
+        ["Chips Chicken", "15,000/=", 15000, false],
+        ["Chips Kebab", "8,000/=", 8000, false],
+        ["Chips Chap", "8,000/=", 8000, false],
+        ["Chapatti", "1,000/=", 1000, false],
+        ["Kebab", "2,500/=", 2500, false],
+        ["Chap", "2,500/=", 2500, false],
+        ["Pizza Small", "20,000/=", 20000, false],
+        ["Pizza Medium", "25,000/=", 25000, false],
+        ["Pizza Large", "27,000/=", 27000, false]
+      ],
+      "local dishes": [
         ["Beef", "10,000/=", 10000, true],
         ["G.nuts Plain", "6,000/=", 6000, true],
         ["Fresh Fish", "12,000/=", 12000, true],
@@ -603,41 +954,57 @@
         ["Beef/Beans", "10,000/=", 10000, true],
         ["Chicken Stew", "13,000/=", 13000, true],
         ["Karo/Eshabwe", "10,000/=", 10000, true],
-        ["Food/Eshabwe", "10,000/=", 10000, true],
-        ["Platter (3 People)", "50,000/=", 50000, false],
-        ["Platter (5 People)", "75,000/=", 75000, false]
+        ["Food/Eshabwe", "10,000/=", 10000, true]
+      ],
+      "special dishes": [
+        ["Panfried Goat", "20,000/=", 20000, true, "POPULAR", "🐐", "Sizzling panfried goat"],
+        ["Panfried Chicken", "20,000/=", 20000, true, "FAVORITE", "🍗", "Tender panfried chicken"],
+        ["Panfried Beef", "12,000/=", 12000, true, "SPECIAL", "🥩", "Savory panfried beef"],
+        ["Platter Mini", "35,000/=", 35000, false, "MINI PLATTER", "🍱", "Serves 1-2 people"],
+        ["Platter (3 People)", "50,000/=", 50000, false, "BESTSELLER", "🍱", "Serves 3 people"],
+        ["Platter (5 People)", "75,000/=", 75000, false, "CHEF'S PICK", "🥘", "Serves 5 people"]
       ]
     };
 
-    const localFoodOptions = [
-      "Matooke", "Rice", "Posho", "Kalo", 
-      "Yam", "Sweet Potato", "Cassava", "Pumpkin"
+    const customFoodOptions = [
+      "Chips", "½pilao", "Matooke", "Rice", "Posho", 
+      "Kalo", "Sweet Potato", "Cassava", "Yam", "Pumpkin"
     ];
 
-    // LocalStorage Helper Methods
-    function getUsersDB() {
-      return JSON.parse(localStorage.getItem('sm_users_db') || '{}');
+    function renderHomePageDishes() {
+      const container = document.getElementById('home-dishes-container');
+      container.innerHTML = "";
+      
+      const specialMeals = pdfMenu["special dishes"] || [];
+      
+      specialMeals.forEach(([name, displayPrice, price, isCustomizable, badge, icon, desc]) => {
+        const dishCard = document.createElement('div');
+        dishCard.className = 'dish-card';
+        
+        const badgeHtml = badge ? `<span class="badge-tag"${badge === "CHEF'S PICK" ? ' style="background:var(--mtn-yellow); color:#000;"' : ''}>${badge}</span>` : '';
+        const iconHtml = icon || '🥘';
+        const descHtml = desc || 'Special restaurant dish cooked fresh on order';
+        
+        dishCard.innerHTML = `
+          ${badgeHtml}
+          <div class="dish-img-placeholder">${iconHtml}</div>
+          <p class="dish-name">${name}</p>
+          <p class="dish-desc">${descHtml}</p>
+          <div class="dish-footer">
+            <span class="dish-price">UGX ${price.toLocaleString()}</span>
+            <button class="btn-plus-small" onclick="handleAddClick('${name.replace(/'/g, "\\'")}', ${price}, ${isCustomizable})">+</button>
+          </div>
+        `;
+        container.appendChild(dishCard);
+      });
     }
 
-    function saveUsersDB(db) {
-      localStorage.setItem('sm_users_db', JSON.stringify(db));
-    }
-
-    function getActiveSession() {
-      return JSON.parse(localStorage.getItem('sm_active_session') || 'null');
-    }
-
-    function setActiveSession(user) {
-      localStorage.setItem('sm_active_session', JSON.stringify(user));
-    }
-
-    function clearActiveSession() {
-      localStorage.removeItem('sm_active_session');
-    }
-
-    function isValidPhone(phone) {
-      return /^07\d{8}$/.test(phone);
-    }
+    function getUsersDB() { return JSON.parse(localStorage.getItem('sm_users_db') || '{}'); }
+    function saveUsersDB(db) { localStorage.setItem('sm_users_db', JSON.stringify(db)); }
+    function getActiveSession() { return JSON.parse(localStorage.getItem('sm_active_session') || 'null'); }
+    function setActiveSession(user) { localStorage.setItem('sm_active_session', JSON.stringify(user)); }
+    function clearActiveSession() { localStorage.removeItem('sm_active_session'); }
+    function isValidPhone(phone) { return /^07\d{8}$/.test(phone); }
 
     function navigateTo(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -679,7 +1046,6 @@
       updateFloatingTotalUI();
     }
 
-    // Authentication Logic (Offline via LocalStorage)
     function handleLogin() {
       const email = document.getElementById('login-email').value.trim().toLowerCase();
       const pass = document.getElementById('login-password').value.trim();
@@ -818,7 +1184,6 @@
           state.tempPhoto = e.target.result;
           if (state.currentUser) {
             state.currentUser.photoURL = e.target.result;
-            
             const users = getUsersDB();
             if (users[state.currentUser.email]) {
               users[state.currentUser.email].photoURL = e.target.result;
@@ -863,103 +1228,47 @@
       }
     }
 
+    function buildFormattedWAMessage(sauce, foods) {
+      const sauceText = sauce || "None";
+      const foodsText = foods || "None";
+      return `New order!\nSelected sauce: (${sauceText})\nSelected food: (${foodsText})\nconfirm my order please`;
+    }
+
     function sendMainOrder() {
       const loc = document.getElementById('order-location').value.trim();
       const items = document.getElementById('order-items').value.trim();
 
       if (!loc || !items) {
-        alert("Please specify your delivery location and items.");
+        alert("Please specify your location and items.");
         return;
       }
 
-      const totalNum = state.orderList.reduce((acc, item) => acc + item.price, 0);
-      const userName = state.currentUser ? (state.currentUser.displayName || state.currentUser.name) : "Guest";
-      const userEmail = state.currentUser ? state.currentUser.email : "N/A";
-
-      const message = 
-        `📦 *NEW ORDER*\n` +
-        `━━━━━━━━━━━━━━━━━━\n` +
-        `👤 *Customer:* ${userName}\n` +
-        `📧 *Email:* ${userEmail}\n` +
-        `📍 *Location/Table:* ${loc}\n\n` +
-        `🛒 *ITEMS*\n` +
-        `• ${items}\n\n` +
-        `💰 *ESTIMATED TOTAL:* UGX ${totalNum.toLocaleString()}\n` +
-        `━━━━━━━━━━━━━━━━━━\n` +
-        `Please confirm receipt!`;
-
+      const message = buildFormattedWAMessage("Main Order", items);
       dispatchWhatsApp(message);
     }
 
-    function openGateway(provider) {
-      state.selectedProvider = provider;
-      const banner = document.getElementById('gateway-banner');
-      const submitBtn = document.getElementById('gateway-submit-btn');
-      const merchantInfo = document.getElementById('gateway-merchant-info');
-
-      const totalNum = state.orderList.reduce((acc, item) => acc + item.price, 0);
-      if (totalNum > 0) {
-        document.getElementById('gateway-amount').value = totalNum;
-      }
-
-      document.getElementById('gateway-status').style.display = 'none';
-
-      if (provider === 'mtn') {
-        banner.className = 'gateway-header btn-mtn';
-        banner.innerText = 'MTN MOMO PAY';
-        merchantInfo.innerText = `Send Money Directly to MTN Number: ${MTN_PAYMENT_NUMBER}`;
-        submitBtn.className = 'btn btn-mtn';
-      } else {
-        banner.className = 'gateway-header btn-airtel';
-        banner.innerText = 'AIRTEL MONEY PAY';
-        merchantInfo.innerText = `Send Money Directly to Airtel Number: ${AIRTEL_PAYMENT_NUMBER}`;
-        submitBtn.className = 'btn btn-airtel';
-      }
-
-      openModal('modal-gateway');
+    function dialMTNCode() {
+      window.location.href = "tel:*165*3*924384%23";
     }
 
-    function processPayment() {
-      const phone = document.getElementById('gateway-phone').value.trim();
-      const amount = document.getElementById('gateway-amount').value.trim();
-      const ref = document.getElementById('gateway-ref').value.trim();
-      const status = document.getElementById('gateway-status');
+    function copyMTNCode() {
+      navigator.clipboard.writeText("924384").then(() => {
+        alert("MTN MoMo Code '924384' copied to clipboard!");
+      }).catch(() => {
+        alert("MTN MoMo Code: 924384");
+      });
+    }
 
-      if (!isValidPhone(phone)) {
-        alert("Paying phone number must start with '07' and be exactly 10 digits.");
-        return;
-      }
+    function copyAirtelMerchantCode() {
+      navigator.clipboard.writeText("6627096").then(() => {
+        alert("Airtel Merchant Code '6627096' copied to clipboard!");
+      }).catch(() => {
+        alert("Merchant Code: 6627096");
+      });
+    }
 
-      if (!amount || parseFloat(amount) <= 0) {
-        alert('Please enter a valid payment amount.');
-        return;
-      }
-
-      if (!ref || ref.length < 3) {
-        alert('For accuracy & safety, please enter a valid Transaction ID or Reference Note.');
-        return;
-      }
-
-      const targetNumber = state.selectedProvider === 'mtn' ? MTN_PAYMENT_NUMBER : AIRTEL_PAYMENT_NUMBER;
-
-      status.innerText = `Verifying payment of UGX ${amount} to ${targetNumber}...`;
-      status.style.display = 'block';
-
-      setTimeout(() => {
-        const confirmMsg = 
-          `💳 *MOBILE MONEY PAYMENT CONFIRMATION*\n` +
-          `━━━━━━━━━━━━━━━━━━\n` +
-          `• *Method:* ${state.selectedProvider.toUpperCase()}\n` +
-          `• *Target Number:* ${targetNumber}\n` +
-          `• *Payer Contact:* ${phone}\n` +
-          `• *Amount:* UGX ${amount}\n` +
-          `• *Ref/Txn ID:* ${ref}\n` +
-          `━━━━━━━━━━━━━━━━━━\n` +
-          `Payment details logged securely. Please verify receipt.`;
-
-        dispatchWhatsApp(confirmMsg);
-        closeModal('modal-gateway');
-      }, 1200);
+    function dialAirtelCode() {
+      window.location.href = "tel:*165*9*6627096%23";
     }
 
     function renderMenu() {
@@ -969,15 +1278,14 @@
       for (const [category, items] of Object.entries(pdfMenu)) {
         const catHeader = document.createElement('h3');
         catHeader.className = 'accent-title';
-        catHeader.style.marginTop = '16px';
-        catHeader.style.marginBottom = '8px';
+        catHeader.style.padding = '16px 16px 4px';
         catHeader.innerText = category.toUpperCase();
         container.appendChild(catHeader);
 
         const card = document.createElement('div');
         card.className = 'card';
 
-        items.forEach(([name, displayPrice, rawPrice, isLocal]) => {
+        items.forEach(([name, displayPrice, rawPrice, isCustomizable]) => {
           const itemRow = document.createElement('div');
           itemRow.className = 'menu-item';
           
@@ -996,7 +1304,7 @@
           const addBtn = document.createElement('button');
           addBtn.className = 'btn-add';
           addBtn.textContent = '+';
-          addBtn.onclick = () => handleAddClick(name, rawPrice, isLocal);
+          addBtn.onclick = () => handleAddClick(name, rawPrice, isCustomizable);
 
           itemRow.appendChild(infoDiv);
           itemRow.appendChild(priceSpan);
@@ -1009,15 +1317,15 @@
       }
     }
 
-    function handleAddClick(name, price, isLocal) {
-      if (isLocal) {
+    function handleAddClick(name, price, isCustomizable) {
+      if (isCustomizable) {
         state.currentLocalSauce = name;
         state.currentLocalPrice = price;
         document.getElementById('local-food-title').innerText = `Sides for: ${name}`;
         
         const grid = document.getElementById('food-options-grid');
         grid.innerHTML = "";
-        localFoodOptions.forEach(food => {
+        customFoodOptions.forEach(food => {
           grid.innerHTML += `
             <label class="checkbox-item">
               <input type="checkbox" value="${food}"> ${food}
@@ -1037,14 +1345,40 @@
       document.querySelectorAll('#food-options-grid input[type="checkbox"]:checked').forEach(cb => {
         checked.push(cb.value);
       });
-      return checked.length > 0 ? checked.join(', ') : 'Plain';
+      return checked;
+    }
+
+    function calculateLocalPrice(sauceName, selectedArray, basePrice) {
+      let finalPrice = basePrice;
+      const hasChips = selectedArray.includes("Chips");
+      const hasOtherFoodApartFromChips = selectedArray.some(item => item !== "Chips");
+      const hasPilao = selectedArray.includes("½pilao");
+      const hasOtherThanPilao = selectedArray.some(item => item !== "½pilao");
+
+      if (sauceName === "Panfried Beef") {
+        if (hasChips && hasOtherFoodApartFromChips) {
+          finalPrice = 15000;
+        } else {
+          finalPrice = 12000;
+        }
+      }
+
+      // Add 3,000 extra for ½pilao EXCEPT for Panfried Goat and Panfried Chicken
+      if (hasPilao && hasOtherThanPilao && sauceName !== "Panfried Goat" && sauceName !== "Panfried Chicken") {
+        finalPrice += 3000;
+      }
+
+      return finalPrice;
     }
 
     function confirmLocalFoodToForm() {
-      const selectedStr = getSelectedCheckboxes();
+      const selectedArray = getSelectedCheckboxes();
+      const selectedStr = selectedArray.length > 0 ? selectedArray.join(', ') : 'Plain';
+      const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
+      
       const itemFormatted = `1x ${state.currentLocalSauce} (${selectedStr})`;
       
-      state.orderList.push({ name: itemFormatted, price: state.currentLocalPrice });
+      state.orderList.push({ name: itemFormatted, price: finalPrice });
       syncOrderInputText();
 
       const locVal = document.getElementById('local-food-location').value.trim();
@@ -1054,32 +1388,19 @@
     }
 
     function sendLocalFoodDirectWhatsApp() {
-      const selectedStr = getSelectedCheckboxes();
-      const locVal = document.getElementById('local-food-location').value.trim() || 'Not specified';
-      const userName = state.currentUser ? (state.currentUser.displayName || state.currentUser.name) : "Guest";
-      const userEmail = state.currentUser ? state.currentUser.email : "N/A";
-
-      const message = 
-        `🍽️ *LOCAL MEAL ORDER*\n` +
-        `━━━━━━━━━━━━━━━━━━\n` +
-        `👤 *Customer:* ${userName}\n` +
-        `📧 *Email:* ${userEmail}\n` +
-        `📍 *Delivery:* ${locVal}\n\n` +
-        `🥘 *DETAILS*\n` +
-        `• *Main:* ${state.currentLocalSauce}\n` +
-        `• *Sides:* ${selectedStr}\n` +
-        `💰 *PRICE:* UGX ${state.currentLocalPrice.toLocaleString()}\n` +
-        `━━━━━━━━━━━━━━━━━━\n` +
-        `Please confirm!`;
+      const selectedArray = getSelectedCheckboxes();
+      const selectedStr = selectedArray.length > 0 ? selectedArray.join(', ') : 'Plain';
+      
+      const message = buildFormattedWAMessage(state.currentLocalSauce, selectedStr);
 
       dispatchWhatsApp(message);
       closeModal('modal-food');
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
 
-    // Event Bindings
+    // Event Listeners
     document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
     document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
     document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
@@ -1090,16 +1411,24 @@
     document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
     document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
     
-    document.getElementById('btn-gateway-mtn').addEventListener('click', () => openGateway('mtn'));
-    document.getElementById('btn-gateway-airtel').addEventListener('click', () => openGateway('airtel'));
-    document.getElementById('gateway-submit-btn').addEventListener('click', processPayment);
-    document.getElementById('btn-close-gateway').addEventListener('click', () => closeModal('modal-gateway'));
+    document.getElementById('btn-dial-mtn').addEventListener('click', dialMTNCode);
+    document.getElementById('btn-copy-mtn-code').addEventListener('click', copyMTNCode);
+    document.getElementById('btn-copy-airtel-code').addEventListener('click', copyAirtelMerchantCode);
+    document.getElementById('btn-dial-airtel').addEventListener('click', dialAirtelCode);
     
     document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
     document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
     document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
     document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
     
+    document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
+    document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
+    document.getElementById('btn-promo-order').addEventListener('click', () => {
+      handleAddClick('Pizza Large', 27000, false);
+      switchTab('order', document.getElementById('nav-order-btn'));
+    });
+    document.getElementById('link-view-all').addEventListener('click', (e) => { e.preventDefault(); switchTab('menu', document.getElementById('nav-menu-btn')); });
+
     document.getElementById('btn-upload-photo').addEventListener('click', () => document.getElementById('signup-photo').click());
     document.getElementById('signup-photo').addEventListener('change', handlePhotoUpload);
     document.getElementById('btn-change-photo').addEventListener('click', () => document.getElementById('profile-photo-input').click());
@@ -1107,10 +1436,12 @@
 
     document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
     document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
-    document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
+    document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
+    document.getElementById('nav-orders-list-btn').addEventListener('click', (e) => switchTab('order', document.getElementById('nav-order-btn')));
     document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
 
     (function initApp() {
+      renderHomePageDishes();
       renderMenu();
       updateFloatingTotalUI();
 
@@ -1124,4 +1455,8 @@
     })();
   </script>
 </body>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getAnalytics }
 </html>
