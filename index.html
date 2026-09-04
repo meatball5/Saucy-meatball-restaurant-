@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Saucy Meatball Restaurant</title>
   
-  <!-- FONT IMPORTS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
 
-  <!-- FIREBASE & GOOGLE ANALYTICS INTEGRATION -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
     import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
@@ -1087,7 +1085,6 @@
         </div>
       </section>
 
-      <!-- GLOBAL PAYMENT TAB CONTAINER (Appears on every page except Profile & Contact) -->
       <div id="global-payment-section" class="global-payment-panel">
         <div class="card">
           <h3 class="accent-title" style="margin-bottom: 8px;">Direct Mobile Money Dial</h3>
@@ -1341,7 +1338,7 @@
         itemRow.innerHTML = `
           <div class="order-checklist-left">
             <input type="checkbox" checked onchange="removeOrderItem(${idx})" title="Uncheck to remove item" />
-            <span class="order-item-text">${item.name}</span>
+            <span class="order-item-text">${item.displayName || item.name}</span>
           </div>
           <span class="order-item-price-tag">UGX ${item.price.toLocaleString()}</span>
         `;
@@ -1535,18 +1532,18 @@
         return;
       }
 
-      const itemsSummary = state.orderList.map(i => i.name).join(' + ');
+      const formattedItems = state.orderList.map(i => `- ${i.displayName || i.name} - UGX ${i.price.toLocaleString()}`).join('\n');
       const totalCost = state.orderList.reduce((acc, item) => acc + item.price, 0);
 
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
-          items: itemsSummary,
+          items: state.orderList.map(i => i.displayName || i.name).join(' + '),
           location: loc,
           value: totalCost
         });
       }
 
-      const message = `New Order Request!\n\nSelected Menu Items:\n- ${state.orderList.map(i => i.name).join('\n- ')}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\nDelivery Location: ${loc}\n\nPlease confirm my order!`;
+      const message = `New Order Request!\n\nSelected Menu Items:\n${formattedItems}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\nDelivery Location: ${loc}\n\nPlease confirm my order!`;
       dispatchWhatsApp(message);
     }
 
@@ -1622,7 +1619,7 @@
         
         openModal('modal-food');
       } else {
-        state.orderList.push({ name: `${name}`, price: price });
+        state.orderList.push({ name: name, displayName: name, price: price });
         syncOrderInputText();
       }
     }
@@ -1676,7 +1673,10 @@
       const selectedArray = getSelectedCheckboxes();
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       
-      state.orderList.push({ name: state.currentLocalSauce, price: finalPrice });
+      const sidesText = selectedArray.length > 0 ? ` (${selectedArray.join(', ')})` : '';
+      const fullDisplayName = `${state.currentLocalSauce}${sidesText}`;
+
+      state.orderList.push({ name: state.currentLocalSauce, displayName: fullDisplayName, price: finalPrice });
       syncOrderInputText();
 
       const locVal = document.getElementById('local-food-location').value.trim();
@@ -1690,14 +1690,17 @@
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       const locVal = document.getElementById('local-food-location').value.trim() || "Not specified";
       
+      const sidesText = selectedArray.length > 0 ? ` (${selectedArray.join(', ')})` : '';
+      const fullDisplayName = `${state.currentLocalSauce}${sidesText}`;
+
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
-          item_name: state.currentLocalSauce,
+          item_name: fullDisplayName,
           value: finalPrice
         });
       }
 
-      const message = `New Order Request!\n\nSelected Menu Item:\n- ${state.currentLocalSauce}\n\nTotal Price: UGX ${finalPrice.toLocaleString()}\nDelivery Location: ${locVal}\n\nPlease confirm my order!`;
+      const message = `New Order Request!\n\nSelected Menu Item:\n- ${fullDisplayName} - UGX ${finalPrice.toLocaleString()}\n\nTotal Price: UGX ${finalPrice.toLocaleString()}\nDelivery Location: ${locVal}\n\nPlease confirm my order!`;
 
       dispatchWhatsApp(message);
       closeModal('modal-food');
