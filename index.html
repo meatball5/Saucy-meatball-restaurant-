@@ -600,6 +600,65 @@
       cursor: pointer;
     }
 
+    /* ORDER CHECKLIST ITEMS */
+    .order-checklist-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .order-checklist-item {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .order-checklist-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .order-checklist-left input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--bright-green);
+      cursor: pointer;
+    }
+
+    .order-item-text {
+      font-size: 0.85rem;
+      color: #ffffff;
+      word-break: break-word;
+    }
+
+    .order-item-price-tag {
+      font-size: 0.85rem;
+      color: var(--gold-primary);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .empty-cart-msg {
+      text-align: center;
+      color: var(--subtext);
+      font-size: 0.85rem;
+      padding: 16px;
+      border: 1px dashed var(--card-border);
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -953,11 +1012,13 @@
       <section id="screen-order" class="screen">
         <h1 style="color:#fff; padding:16px; font-size:1.4rem;">PLACE YOUR ORDER</h1>
         <div class="card">
-          <label>Location</label>
+          <label>Delivery Location</label>
           <input type="text" id="order-location" placeholder="e.g., Ntinda Complex..." />
           
-          <label>Order Items</label>
-          <input type="text" id="order-items" placeholder="Tap '+' from Menu tab to auto-fill..." />
+          <label>Selected Menu Items</label>
+          <div id="order-items-checklist" class="order-checklist-container">
+            <div class="empty-cart-msg">No menu items selected yet.<br/>Tap '+' on any dish in the Menu to add.</div>
+          </div>
           
           <button class="btn btn-bold-green" id="btn-send-main-order">SEND ORDER TO WHATSAPP</button>
           
@@ -1222,7 +1283,6 @@
       const floatingBar = document.getElementById('top-floating-bar');
       const paymentSection = document.getElementById('global-payment-section');
       
-      // Explicitly hide payment tab and top bar on login, signup, profile, and contact screens
       const hiddenScreens = ['login', 'signup', 'profile', 'contact'];
       if (hiddenScreens.includes(screenId)) {
         floatingBar.style.display = 'none';
@@ -1255,13 +1315,43 @@
       document.getElementById('floating-total').innerText = `UGX ${totalNum.toLocaleString()}`;
     }
 
-    function syncOrderInputText() {
-      const orderInput = document.getElementById('order-items');
+    function removeOrderItem(index) {
+      state.orderList.splice(index, 1);
+      renderOrderChecklist();
+      updateFloatingTotalUI();
+    }
+
+    function renderOrderChecklist() {
+      const checklistContainer = document.getElementById('order-items-checklist');
+      checklistContainer.innerHTML = "";
+
       if (state.orderList.length === 0) {
-        orderInput.value = "";
-      } else {
-        orderInput.value = state.orderList.map(i => i.name).join(', ');
+        checklistContainer.innerHTML = `
+          <div class="empty-cart-msg">
+            No menu items selected yet.<br/>Tap '+' on any dish in the Menu to add.
+          </div>
+        `;
+        return;
       }
+
+      state.orderList.forEach((item, idx) => {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'order-checklist-item';
+
+        itemRow.innerHTML = `
+          <div class="order-checklist-left">
+            <input type="checkbox" checked onchange="removeOrderItem(${idx})" title="Uncheck to remove item" />
+            <span class="order-item-text">${item.name}</span>
+          </div>
+          <span class="order-item-price-tag">UGX ${item.price.toLocaleString()}</span>
+        `;
+
+        checklistContainer.appendChild(itemRow);
+      });
+    }
+
+    function syncOrderInputText() {
+      renderOrderChecklist();
       updateFloatingTotalUI();
     }
 
@@ -1432,29 +1522,31 @@
       }
     }
 
-    function buildFormattedWAMessage(sauce, foods) {
-      const sauceText = sauce || "None";
-      const foodsText = foods || "None";
-      return `New order!\nSelected sauce: (${sauceText})\nSelected food: (${foodsText})\nconfirm my order please`;
-    }
-
     function sendMainOrder() {
       const loc = document.getElementById('order-location').value.trim();
-      const items = document.getElementById('order-items').value.trim();
 
-      if (!loc || !items) {
-        alert("Please specify your location and items.");
+      if (state.orderList.length === 0) {
+        alert("Your order list is empty! Please add menu items before sending.");
         return;
       }
 
+      if (!loc) {
+        alert("Please enter your delivery location.");
+        return;
+      }
+
+      const itemsSummary = state.orderList.map(i => i.name).join(' + ');
+      const totalCost = state.orderList.reduce((acc, item) => acc + item.price, 0);
+
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
-          items: items,
-          location: loc
+          items: itemsSummary,
+          location: loc,
+          value: totalCost
         });
       }
 
-      const message = buildFormattedWAMessage("Main Order", items);
+      const message = `New Order Request!\n\nSelected Menu Items:\n- ${state.orderList.map(i => i.name).join('\n- ')}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\nDelivery Location: ${loc}\n\nPlease confirm my order!`;
       dispatchWhatsApp(message);
     }
 
@@ -1530,7 +1622,7 @@
         
         openModal('modal-food');
       } else {
-        state.orderList.push({ name: `1x ${name}`, price: price });
+        state.orderList.push({ name: `${name}`, price: price });
         syncOrderInputText();
       }
     }
@@ -1546,18 +1638,33 @@
     function calculateLocalPrice(sauceName, selectedArray, basePrice) {
       let finalPrice = basePrice;
       const hasChips = selectedArray.includes("Chips");
-      const hasOtherFoodApartFromChips = selectedArray.some(item => item !== "Chips");
       const hasPilao = selectedArray.includes("½pilao");
-      const hasOtherThanPilao = selectedArray.some(item => item !== "½pilao");
+      const hasOtherFoods = selectedArray.some(item => item !== "Chips" && item !== "½pilao");
 
+      // PRICING RULES: Panfried Beef
       if (sauceName === "Panfried Beef") {
-        if (hasChips && hasOtherFoodApartFromChips) {
+        if (hasChips && hasPilao) {
+          finalPrice = 17000;
+        } else if (hasChips && hasOtherFoods) {
           finalPrice = 15000;
         } else {
           finalPrice = 12000;
         }
+        return finalPrice;
       }
 
+      // PRICING RULES: Liver
+      if (sauceName === "Liver") {
+        if ((hasChips && hasPilao) || (hasChips && hasOtherFoods) || (hasPilao && hasOtherFoods)) {
+          finalPrice = 17000;
+        } else {
+          finalPrice = 15000;
+        }
+        return finalPrice;
+      }
+
+      // Default logic for other customizable dishes
+      const hasOtherThanPilao = selectedArray.some(item => item !== "½pilao");
       if (hasPilao && hasOtherThanPilao && sauceName !== "Panfried Goat" && sauceName !== "Panfried Chicken") {
         finalPrice += 3000;
       }
@@ -1567,12 +1674,9 @@
 
     function confirmLocalFoodToForm() {
       const selectedArray = getSelectedCheckboxes();
-      const selectedStr = selectedArray.length > 0 ? selectedArray.join(', ') : 'Plain';
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       
-      const itemFormatted = `1x ${state.currentLocalSauce} (${selectedStr})`;
-      
-      state.orderList.push({ name: itemFormatted, price: finalPrice });
+      state.orderList.push({ name: state.currentLocalSauce, price: finalPrice });
       syncOrderInputText();
 
       const locVal = document.getElementById('local-food-location').value.trim();
@@ -1583,16 +1687,17 @@
 
     function sendLocalFoodDirectWhatsApp() {
       const selectedArray = getSelectedCheckboxes();
-      const selectedStr = selectedArray.length > 0 ? selectedArray.join(', ') : 'Plain';
+      const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
+      const locVal = document.getElementById('local-food-location').value.trim() || "Not specified";
       
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
           item_name: state.currentLocalSauce,
-          options: selectedStr
+          value: finalPrice
         });
       }
 
-      const message = buildFormattedWAMessage(state.currentLocalSauce, selectedStr);
+      const message = `New Order Request!\n\nSelected Menu Item:\n- ${state.currentLocalSauce}\n\nTotal Price: UGX ${finalPrice.toLocaleString()}\nDelivery Location: ${locVal}\n\nPlease confirm my order!`;
 
       dispatchWhatsApp(message);
       closeModal('modal-food');
@@ -1669,7 +1774,7 @@
     (function initApp() {
       renderHomePageDishes();
       renderMenu();
-      updateFloatingTotalUI();
+      syncOrderInputText();
     })();
   </script>
 </body>
