@@ -763,10 +763,6 @@
           <label>Password (Min 6 chars) <span style="color:#ff6b6b;">*</span></label>
           <input type="password" id="signup-password" placeholder="••••••••" />
           
-          <label>Profile Picture (Optional)</label>
-          <input type="file" id="signup-photo" accept="image/*" style="display: none;" />
-          <button class="btn btn-secondary" id="btn-upload-photo" style="margin-bottom: 14px;">Upload Photo</button>
-          
           <div id="signup-error" class="error-msg"></div>
           
           <button class="btn btn-bold-gold" id="btn-handle-signup">REGISTER ACCOUNT</button>
@@ -947,7 +943,6 @@
     const state = {
       isLoggedIn: false,
       currentUser: null,
-      tempPhoto: null,
       currentLocalSauce: "",
       currentLocalPrice: 0,
       orderList: []
@@ -1159,11 +1154,11 @@
 
       try {
         const userCredential = await window.firebaseSignUp(email, pass);
-        const photoUrl = state.tempPhoto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+        const defaultPhotoUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
 
         await window.firebaseUpdateProfile(userCredential.user, {
           displayName: `${name} (${phone})`,
-          photoURL: photoUrl
+          photoURL: defaultPhotoUrl
         });
 
         if (window.logFirebaseEvent) {
@@ -1222,7 +1217,6 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = async function(e) {
-          state.tempPhoto = e.target.result;
           if (window.auth.currentUser) {
             await window.firebaseUpdateProfile(window.auth.currentUser, {
               photoURL: e.target.result
@@ -1483,8 +1477,6 @@
     });
     document.getElementById('link-view-all').addEventListener('click', (e) => { e.preventDefault(); switchTab('menu', document.getElementById('nav-menu-btn')); });
 
-    document.getElementById('btn-upload-photo').addEventListener('click', () => document.getElementById('signup-photo').click());
-    document.getElementById('signup-photo').addEventListener('change', handlePhotoUpload);
     document.getElementById('btn-change-photo').addEventListener('click', () => document.getElementById('profile-photo-input').click());
     document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
 
