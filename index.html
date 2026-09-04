@@ -499,6 +499,10 @@
       box-shadow: 0 0 8px rgba(82, 183, 136, 0.4);
     }
 
+    .field-group {
+      transition: all 0.3s ease;
+    }
+
     .btn {
       width: 100%;
       height: 48px;
@@ -1010,8 +1014,15 @@
       <section id="screen-order" class="screen">
         <h1 style="color:#fff; padding:16px; font-size:1.4rem;">PLACE YOUR ORDER</h1>
         <div class="card">
-          <label>Delivery Location</label>
-          <input type="text" id="order-location" placeholder="e.g., Ntinda Complex..." />
+          <div id="group-location" class="field-group">
+            <label>Delivery Location</label>
+            <input type="text" id="order-location" placeholder="e.g., Ntinda Complex..." />
+          </div>
+          
+          <div id="group-table" class="field-group">
+            <label>Table Number (For Dine-In)</label>
+            <input type="text" id="order-table" placeholder="e.g., Table 5" />
+          </div>
           
           <label>Selected Menu Items</label>
           <div id="order-items-checklist" class="order-checklist-container">
@@ -1153,7 +1164,7 @@
       <p style="font-size: 0.85rem; margin-top: 4px; color: var(--subtext);">Choose sides for your dish:</p>
       
       <div class="checkbox-grid" id="food-options-grid"></div>
-      <input type="text" id="local-food-location" placeholder="Location..." />
+      <input type="text" id="local-food-location" placeholder="Location or Table Number..." />
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <button class="btn btn-secondary" id="btn-confirm-local-food" style="font-size: 0.8rem;">Add to Order</button>
@@ -1521,29 +1532,40 @@
 
     function sendMainOrder() {
       const loc = document.getElementById('order-location').value.trim();
+      const table = document.getElementById('order-table').value.trim();
 
       if (state.orderList.length === 0) {
         alert("Your order list is empty! Please add menu items before sending.");
         return;
       }
 
-      if (!loc) {
-        alert("Please enter your delivery location.");
+      // Check that at least one field (location or table) is filled out
+      if (!loc && !table) {
+        alert("fill in location or table number");
         return;
       }
 
       const formattedItems = state.orderList.map(i => `- ${i.displayName || i.name} - UGX ${i.price.toLocaleString()}`).join('\n');
       const totalCost = state.orderList.reduce((acc, item) => acc + item.price, 0);
 
+      // Build destination detail string based on which field was filled
+      let destinationDetails = "";
+      if (loc) {
+        destinationDetails = `Delivery Location: ${loc}`;
+      } else if (table) {
+        destinationDetails = `Table Number: ${table}`;
+      }
+
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
           items: state.orderList.map(i => i.displayName || i.name).join(' + '),
-          location: loc,
+          location: loc || 'N/A',
+          table_number: table || 'N/A',
           value: totalCost
         });
       }
 
-      const message = `New Order Request!\n\nSelected Menu Items:\n${formattedItems}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\nDelivery Location: ${loc}\n\nPlease confirm my order!`;
+      const message = `New Order Request!\n\nSelected Menu Items:\n${formattedItems}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\n${destinationDetails}\n\nPlease confirm my order!`;
       dispatchWhatsApp(message);
     }
 
@@ -1680,7 +1702,12 @@
       syncOrderInputText();
 
       const locVal = document.getElementById('local-food-location').value.trim();
-      if (locVal) document.getElementById('order-location').value = locVal;
+      if (locVal) {
+        if (!document.getElementById('order-location').value) {
+          document.getElementById('order-location').value = locVal;
+          document.getElementById('order-location').dispatchEvent(new Event('input'));
+        }
+      }
 
       closeModal('modal-food');
     }
@@ -1700,7 +1727,7 @@
         });
       }
 
-      const message = `New Order Request!\n\nSelected Menu Item:\n- ${fullDisplayName} - UGX ${finalPrice.toLocaleString()}\n\nTotal Price: UGX ${finalPrice.toLocaleString()}\nDelivery Location: ${locVal}\n\nPlease confirm my order!`;
+      const message = `New Order Request!\n\nSelected Menu Item:\n- ${fullDisplayName} - UGX ${finalPrice.toLocaleString()}\n\nTotal Price: UGX ${finalPrice.toLocaleString()}\nLocation / Table: ${locVal}\n\nPlease confirm my order!`;
 
       dispatchWhatsApp(message);
       closeModal('modal-food');
@@ -1720,6 +1747,28 @@
     document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
     document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
     
+    // MUTUAL EXCLUSION LOGIC FOR LOCATION AND TABLE NUMBER
+    const locationInput = document.getElementById('order-location');
+    const tableInput = document.getElementById('order-table');
+    const groupLocation = document.getElementById('group-location');
+    const groupTable = document.getElementById('group-table');
+
+    locationInput.addEventListener('input', () => {
+      if (locationInput.value.trim().length > 0) {
+        groupTable.style.display = 'none';
+      } else {
+        groupTable.style.display = 'block';
+      }
+    });
+
+    tableInput.addEventListener('input', () => {
+      if (tableInput.value.trim().length > 0) {
+        groupLocation.style.display = 'none';
+      } else {
+        groupLocation.style.display = 'block';
+      }
+    });
+
     // PAYMENT DYNAMIC MUTUAL EXCLUSION & BRANCH TOGGLE HANDLERS
     const btnMtn = document.getElementById('btn-toggle-mtn-branches');
     const btnAirtel = document.getElementById('btn-toggle-airtel-branches');
