@@ -14,6 +14,15 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
     import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged,
+      sendPasswordResetEmail,
+      updateProfile 
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCSkO34QvzwqQ5mEehrdSZm2o925WE-fw0",
@@ -25,14 +34,36 @@
       measurementId: "G-WGL39SEM4P"
     };
 
-    // Initialize Firebase & Analytics globally
+    // Initialize Firebase, Auth & Analytics globally
     const app = initializeApp(firebaseConfig);
+    window.auth = getAuth(app);
     window.analytics = getAnalytics(app);
+
     window.logFirebaseEvent = (eventName, params = {}) => {
       if (window.analytics) {
         logEvent(window.analytics, eventName, params);
       }
     };
+
+    // Expose Auth functions to global scope
+    window.firebaseSignUp = (email, password) => createUserWithEmailAndPassword(window.auth, email, password);
+    window.firebaseLogin = (email, password) => signInWithEmailAndPassword(window.auth, email, password);
+    window.firebaseLogout = () => signOut(window.auth);
+    window.firebaseResetPassword = (email) => sendPasswordResetEmail(window.auth, email);
+    window.firebaseUpdateProfile = (user, data) => updateProfile(user, data);
+
+    // Monitor Authentication State
+    onAuthStateChanged(window.auth, (user) => {
+      if (user) {
+        window.onSessionChanged({
+          name: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          photoURL: user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+        });
+      } else {
+        window.onSessionChanged(null);
+      }
+    });
   </script>
 
   <style>
@@ -889,7 +920,7 @@
       <div id="forgot-error" class="error-msg"></div>
       <div id="forgot-success" style="color: var(--bright-green); font-size: 0.85rem; margin-bottom: 10px;"></div>
 
-      <button class="btn btn-bold-gold" id="btn-handle-password-reset">SHOW PASSWORD</button>
+      <button class="btn btn-bold-gold" id="btn-handle-password-reset">SEND RESET LINK</button>
       <button class="btn btn-text" id="btn-close-forgot" style="color: #ffffff; margin-top: 8px;">Cancel</button>
     </div>
   </div>
@@ -1019,11 +1050,6 @@
       });
     }
 
-    function getUsersDB() { return JSON.parse(localStorage.getItem('sm_users_db') || '{}'); }
-    function saveUsersDB(db) { localStorage.setItem('sm_users_db', JSON.stringify(db)); }
-    function getActiveSession() { return JSON.parse(localStorage.getItem('sm_active_session') || 'null'); }
-    function setActiveSession(user) { localStorage.setItem('sm_active_session', JSON.stringify(user)); }
-    function clearActiveSession() { localStorage.removeItem('sm_active_session'); }
     function isValidPhone(phone) { return /^07\d{8}$/.test(phone); }
 
     function navigateTo(screenId) {
@@ -1039,7 +1065,6 @@
 
       document.getElementById('main-content-area').scrollTop = 0;
 
-      // Track screen view event in Firebase
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('page_view', { page_title: screenId });
       }
@@ -1071,7 +1096,8 @@
       updateFloatingTotalUI();
     }
 
-    function handleLogin() {
+    // FIREBASE AUTHENTICATION HANDLERS
+    async function handleLogin() {
       const email = document.getElementById('login-email').value.trim().toLowerCase();
       const pass = document.getElementById('login-password').value.trim();
       const err = document.getElementById('login-error');
@@ -1082,22 +1108,17 @@
         return;
       }
 
-      const users = getUsersDB();
-      const user = users[email];
-
-      if (!user || user.password !== pass) {
-        err.innerText = "Invalid email or password credentials.";
-        return;
+      try {
+        await window.firebaseLogin(email, pass);
+        if (window.logFirebaseEvent) {
+          window.logFirebaseEvent('login', { method: 'email' });
+        }
+      } catch (error) {
+        err.innerText = error.message.replace("Firebase: ", "");
       }
-
-      setActiveSession(user);
-      if (window.logFirebaseEvent) {
-        window.logFirebaseEvent('login', { method: 'email' });
-      }
-      onSessionChanged(user);
     }
 
-    function handleSignUp() {
+    async function handleSignUp() {
       const nameInput = document.getElementById('signup-name');
       const phoneInput = document.getElementById('signup-phone');
       const emailInput = document.getElementById('signup-email');
@@ -1136,34 +1157,25 @@
         return;
       }
 
-      const users = getUsersDB();
-      if (users[email]) {
-        err.innerText = "That email address is already registered.";
+      try {
+        const userCredential = await window.firebaseSignUp(email, pass);
+        const photoUrl = state.tempPhoto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+
+        await window.firebaseUpdateProfile(userCredential.user, {
+          displayName: `${name} (${phone})`,
+          photoURL: photoUrl
+        });
+
+        if (window.logFirebaseEvent) {
+          window.logFirebaseEvent('sign_up', { method: 'email' });
+        }
+      } catch (error) {
+        err.innerText = error.message.replace("Firebase: ", "");
         emailInput.classList.add('input-error');
-        return;
       }
-
-      const photoUrl = state.tempPhoto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
-
-      const newUser = {
-        name: name,
-        phone: phone,
-        email: email,
-        password: pass,
-        displayName: `${name} (${phone})`,
-        photoURL: photoUrl
-      };
-
-      users[email] = newUser;
-      saveUsersDB(users);
-      setActiveSession(newUser);
-      if (window.logFirebaseEvent) {
-        window.logFirebaseEvent('sign_up', { method: 'email' });
-      }
-      onSessionChanged(newUser);
     }
 
-    function handlePasswordReset() {
+    async function handlePasswordReset() {
       const email = document.getElementById('forgot-email').value.trim().toLowerCase();
       const err = document.getElementById('forgot-error');
       const success = document.getElementById('forgot-success');
@@ -1176,23 +1188,21 @@
         return;
       }
 
-      const users = getUsersDB();
-      if (!users[email]) {
-        err.innerText = "No account found registered with this email.";
-        return;
+      try {
+        await window.firebaseResetPassword(email);
+        success.innerText = "Password reset link sent to your email!";
+      } catch (error) {
+        err.innerText = error.message.replace("Firebase: ", "");
       }
-
-      success.innerText = `Password recovery: Your password is "${users[email].password}"`;
     }
 
-    function handleLogout() {
+    async function handleLogout() {
       state.orderList = [];
       syncOrderInputText();
-      clearActiveSession();
-      onSessionChanged(null);
+      await window.firebaseLogout();
     }
 
-    function onSessionChanged(user) {
+    window.onSessionChanged = function(user) {
       if (user) {
         state.isLoggedIn = true;
         state.currentUser = user;
@@ -1205,22 +1215,18 @@
         toggleNavbar(false);
         navigateTo('login');
       }
-    }
+    };
 
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
           state.tempPhoto = e.target.result;
-          if (state.currentUser) {
-            state.currentUser.photoURL = e.target.result;
-            const users = getUsersDB();
-            if (users[state.currentUser.email]) {
-              users[state.currentUser.email].photoURL = e.target.result;
-              saveUsersDB(users);
-            }
-            setActiveSession(state.currentUser);
+          if (window.auth.currentUser) {
+            await window.firebaseUpdateProfile(window.auth.currentUser, {
+              photoURL: e.target.result
+            });
             document.getElementById('profile-img').src = e.target.result;
           }
         };
@@ -1230,7 +1236,7 @@
 
     function updateProfileUI() {
       if (!state.currentUser) return;
-      document.getElementById('profile-name').innerText = state.currentUser.displayName || state.currentUser.name || "User Account";
+      document.getElementById('profile-name').innerText = state.currentUser.name || "User Account";
       document.getElementById('profile-email').innerText = state.currentUser.email || "";
       document.getElementById('profile-img').src = state.currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
     }
@@ -1492,14 +1498,6 @@
       renderHomePageDishes();
       renderMenu();
       updateFloatingTotalUI();
-
-      const savedUser = getActiveSession();
-      if (savedUser) {
-        onSessionChanged(savedUser);
-      } else {
-        toggleNavbar(false);
-        navigateTo('login');
-      }
     })();
   </script>
 </body>
