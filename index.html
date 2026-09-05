@@ -2112,82 +2112,101 @@
         });
       }
 
-      const message = `New Quick Order!\n\nItem: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
+      const message = `New Quick Order Request!\n\nDish: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nDestination/Table: ${locVal}\n\nPlease confirm!`;
       dispatchWhatsApp(message);
       closeModal('modal-food');
     }
 
-    // Event Listeners setup
-    document.addEventListener('DOMContentLoaded', () => {
-      renderHomePageDishes();
-      renderMenu();
+    // Attach payment toggle button listeners
+    const btnMtn = document.getElementById('btn-toggle-mtn-branches');
+    const btnAirtel = document.getElementById('btn-toggle-airtel-branches');
+    const mtnBranches = document.getElementById('mtn-branch-container');
+    const airtelBranches = document.getElementById('airtel-branch-container');
 
-      // Navigation Buttons
-      document.getElementById('nav-home-btn').onclick = (e) => switchTab('home', e.currentTarget);
-      document.getElementById('nav-menu-btn').onclick = (e) => switchTab('menu', e.currentTarget);
-      document.getElementById('nav-order-btn').onclick = (e) => switchTab('order', document.getElementById('nav-orders-list-btn'));
-      document.getElementById('nav-orders-list-btn').onclick = (e) => switchTab('order', e.currentTarget);
-      document.getElementById('nav-contact-btn').onclick = (e) => switchTab('contact', e.currentTarget);
-      document.getElementById('nav-profile-btn').onclick = (e) => switchTab('profile', e.currentTarget);
+    btnMtn.addEventListener('click', () => {
+      const isMtnVisible = mtnBranches.classList.contains('active');
 
-      document.getElementById('btn-hero-order').onclick = () => switchTab('order', document.getElementById('nav-orders-list-btn'));
-      document.getElementById('btn-hero-menu').onclick = () => switchTab('menu', document.getElementById('nav-menu-btn'));
-      document.getElementById('link-view-all').onclick = (e) => { e.preventDefault(); switchTab('menu', document.getElementById('nav-menu-btn')); };
-      document.getElementById('btn-promo-order').onclick = () => switchTab('order', document.getElementById('nav-orders-list-btn'));
-
-      // Auth Buttons
-      document.getElementById('btn-handle-login').onclick = handleLogin;
-      document.getElementById('btn-handle-signup').onclick = handleSignUp;
-      document.getElementById('btn-handle-logout').onclick = handleLogout;
-      document.getElementById('btn-handle-password-reset').onclick = handlePasswordReset;
-
-      document.getElementById('btn-goto-signup').onclick = () => navigateTo('signup');
-      document.getElementById('btn-goto-login').onclick = () => navigateTo('login');
-      document.getElementById('btn-open-forgot').onclick = () => openModal('modal-forgot');
-      document.getElementById('btn-close-forgot').onclick = () => closeModal('modal-forgot');
-
-      // Password Toggles
-      document.getElementById('chk-show-login-password').onchange = (e) => {
-        document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
-      };
-      document.getElementById('chk-show-signup-password').onchange = (e) => {
-        document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
-      };
-
-      // Photo Uploads
-      document.getElementById('btn-upload-signup-photo').onclick = () => document.getElementById('signup-photo-input').click();
-      document.getElementById('signup-photo-input').onchange = handleSignupPhotoUpload;
-      document.getElementById('btn-change-photo').onclick = () => document.getElementById('profile-photo-input').click();
-      document.getElementById('profile-photo-input').onchange = handlePhotoUpload;
-
-      // Order Buttons
-      document.getElementById('btn-send-main-order').onclick = sendMainOrder;
-      document.getElementById('btn-confirm-local-food').onclick = confirmLocalFoodToForm;
-      document.getElementById('btn-send-local-food-wa').onclick = sendLocalFoodDirectWhatsApp;
-      document.getElementById('btn-close-food').onclick = () => closeModal('modal-food');
-
-      // Payment Toggle Sub-Buttons
-      const btnToggleMtn = document.getElementById('btn-toggle-mtn-branches');
-      const btnToggleAirtel = document.getElementById('btn-toggle-airtel-branches');
-      const mtnContainer = document.getElementById('mtn-branch-container');
-      const airtelContainer = document.getElementById('airtel-branch-container');
-
-      btnToggleMtn.onclick = () => {
-        mtnContainer.classList.toggle('active');
-        airtelContainer.classList.remove('active');
-      };
-
-      btnToggleAirtel.onclick = () => {
-        airtelContainer.classList.toggle('active');
-        mtnContainer.classList.remove('active');
-      };
-
-      // Updated Mobile Money Merchant/MoMo Dial Codes
-      document.getElementById('btn-mtn-kimera').onclick = () => dialCode('*165*3*924384#');
-      document.getElementById('btn-mtn-sunways').onclick = () => dialCode('*165*3*91126006#');
-      document.getElementById('btn-airtel-kimera').onclick = () => dialCode('*185*9*6627096#');
-      document.getElementById('btn-airtel-sunways').onclick = () => dialCode('*185*9*7139511#');
+      if (isMtnVisible) {
+        mtnBranches.classList.remove('active');
+        btnAirtel.style.display = 'block';
+      } else {
+        mtnBranches.classList.add('active');
+        airtelBranches.classList.remove('active');
+        btnAirtel.style.display = 'none';
+      }
     });
+
+    btnAirtel.addEventListener('click', () => {
+      const isAirtelVisible = airtelBranches.classList.contains('active');
+
+      if (isAirtelVisible) {
+        airtelBranches.classList.remove('active');
+        btnMtn.style.display = 'block';
+      } else {
+        airtelBranches.classList.add('active');
+        mtnBranches.classList.remove('active');
+        btnMtn.style.display = 'none';
+      }
+    });
+
+    // Attach event listeners for payment dial actions
+    document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*2*1#'));
+    document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*2*2#'));
+    document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*185*3*1*1#'));
+    document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*185*3*1*2#'));
+
+    // Navigation and UI interactions
+    document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
+    document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
+    document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
+    document.getElementById('nav-orders-list-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
+    document.getElementById('nav-contact-btn').addEventListener('click', (e) => switchTab('contact', e.currentTarget));
+    document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
+
+    document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
+    document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
+    document.getElementById('link-view-all').addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab('menu', document.getElementById('nav-menu-btn'));
+    });
+    document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
+
+    document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
+    document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
+    document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
+    document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+
+    document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
+    document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
+    document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
+    document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
+    document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
+
+    document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
+    document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
+    document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
+
+    document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
+      document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
+      document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
+      document.getElementById('signup-photo-input').click();
+    });
+    document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
+
+    document.getElementById('btn-change-photo').addEventListener('click', () => {
+      document.getElementById('profile-photo-input').click();
+    });
+    document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+
+    // Initial renders
+    renderHomePageDishes();
+    renderMenu();
   </script>
 </body>
 </html>
