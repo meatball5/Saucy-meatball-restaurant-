@@ -1307,13 +1307,13 @@
           </div>
 
           <div class="branch-sub-buttons" id="mtn-branch-container">
-            <button class="btn btn-sub-mtn" id="btn-mtn-kimera" style="font-size: 0.75rem;">Kimera Road Branch</button>
-            <button class="btn btn-sub-mtn" id="btn-mtn-sunways" style="font-size: 0.75rem;">Sunways Branch</button>
+            <button class="btn btn-sub-mtn" id="btn-mtn-kimera" style="font-size: 0.75rem;" onclick="dialCode('*165*3*924384#')">Kimera Road Branch</button>
+            <button class="btn btn-sub-mtn" id="btn-mtn-sunways" style="font-size: 0.75rem;" onclick="dialCode('*165*3*61126006#')">Sunways Branch</button>
           </div>
 
           <div class="branch-sub-buttons" id="airtel-branch-container">
-            <button class="btn btn-sub-airtel" id="btn-airtel-kimera" style="font-size: 0.75rem;">Kimera Road Branch</button>
-            <button class="btn btn-sub-airtel" id="btn-airtel-sunways" style="font-size: 0.75rem;">Sunways Branch</button>
+            <button class="btn btn-sub-airtel" id="btn-airtel-kimera" style="font-size: 0.75rem;" onclick="dialCode('*185*9*924384#')">Kimera Road Branch</button>
+            <button class="btn btn-sub-airtel" id="btn-airtel-sunways" style="font-size: 0.75rem;" onclick="dialCode('*185*9*7139511#')">Sunways Branch</button>
           </div>
         </div>
       </div>
@@ -2106,93 +2106,84 @@
 
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
-          item_name: fullDisplayName,
+          items: fullDisplayName,
+          location: locVal,
           value: finalPrice
         });
       }
 
-      const message = `New Order Request!\n\nDish: ${fullDisplayName}\nTotal Price: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
+      const message = `New Quick Order!\n\nDish: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
       dispatchWhatsApp(message);
       closeModal('modal-food');
     }
 
-    // Attach Event Listeners
+    // EVENT LISTENERS
     document.addEventListener('DOMContentLoaded', () => {
       renderHomePageDishes();
       renderMenu();
 
-      // Password toggles
-      document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
-        document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
-      });
-
-      document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
-        document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
-      });
-
-      // Navigation & Auth Buttons
       document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
       document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
       document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
-      
-      document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
-      document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
       document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
 
       document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
       document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
+      document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
+      document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
+      document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
 
-      document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-orders-list-btn')));
-      document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
-      document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-orders-list-btn')));
-      document.getElementById('link-view-all').addEventListener('click', (e) => {
-        e.preventDefault();
-        switchTab('menu', document.getElementById('nav-menu-btn'));
+      document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
+      document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
+      document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+
+      // Password Toggles
+      document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
+        document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
+      });
+      document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
+        document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
       });
 
       // Photo upload listeners
-      document.getElementById('btn-upload-signup-photo').addEventListener('click', () => document.getElementById('signup-photo-input').click());
-      document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
-
-      document.getElementById('btn-change-photo').addEventListener('click', () => document.getElementById('profile-photo-input').click());
+      document.getElementById('btn-change-photo').addEventListener('click', () => {
+        document.getElementById('profile-photo-input').click();
+      });
       document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
 
-      // Nav bar tabs
-      document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
-      document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
-      document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
-      document.getElementById('nav-orders-list-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
-      document.getElementById('nav-contact-btn').addEventListener('click', (e) => switchTab('contact', e.currentTarget));
-      document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
+      document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
+        document.getElementById('signup-photo-input').click();
+      });
+      document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
 
-      // Order submission
-      document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+      // Bottom Navigation Buttons
+      document.getElementById('nav-home-btn').addEventListener('click', function() { switchTab('home', this); });
+      document.getElementById('nav-menu-btn').addEventListener('click', function() { switchTab('menu', this); });
+      document.getElementById('nav-order-btn').addEventListener('click', function() { switchTab('order', this); });
+      document.getElementById('nav-orders-list-btn').addEventListener('click', function() { switchTab('order', this); });
+      document.getElementById('nav-contact-btn').addEventListener('click', function() { switchTab('contact', this); });
+      document.getElementById('nav-profile-btn').addEventListener('click', function() { switchTab('profile', this); });
 
-      // Local Food Modal Actions
-      document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
-      document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
-      document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
+      // Home Hero / Quick CTA Links
+      document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
+      document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
+      document.getElementById('link-view-all').addEventListener('click', (e) => { e.preventDefault(); switchTab('menu', document.getElementById('nav-menu-btn')); });
+      document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
 
-      // Mobile Money Toggles
+      // Payment Toggle Buttons
       document.getElementById('btn-toggle-mtn-branches').addEventListener('click', () => {
-        const mtnBox = document.getElementById('mtn-branch-container');
-        const airtelBox = document.getElementById('airtel-branch-container');
-        mtnBox.classList.toggle('active');
-        airtelBox.classList.remove('active');
+        const mtnContainer = document.getElementById('mtn-branch-container');
+        const airtelContainer = document.getElementById('airtel-branch-container');
+        mtnContainer.classList.toggle('active');
+        airtelContainer.classList.remove('active');
       });
 
       document.getElementById('btn-toggle-airtel-branches').addEventListener('click', () => {
-        const airtelBox = document.getElementById('airtel-branch-container');
-        const mtnBox = document.getElementById('mtn-branch-container');
-        airtelBox.classList.toggle('active');
-        mtnBox.classList.remove('active');
+        const airtelContainer = document.getElementById('airtel-branch-container');
+        const mtnContainer = document.getElementById('mtn-branch-container');
+        airtelContainer.classList.toggle('active');
+        mtnContainer.classList.remove('active');
       });
-
-      // Merchant Dialers
-      document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*762683272#'));
-      document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*792456832#'));
-      document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*185*9*0709692063#'));
-      document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*185*9*0701852324#'));
     });
   </script>
 </body>
