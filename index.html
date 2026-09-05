@@ -144,6 +144,24 @@
       border-right: 1px solid var(--card-border);
     }
 
+    /* AUTOMATIC FULL SCREEN RESPONSIVENESS FOR WINDOWS / MAC / LARGE DESKTOPS */
+    @media (min-width: 768px) {
+      .app-container {
+        max-width: 100vw;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+      }
+      .nav-bar {
+        max-width: 600px;
+      }
+      .card {
+        max-width: 700px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+    }
+
     /* PWA INSTALL BANNER */
     .pwa-install-banner {
       display: flex;
@@ -570,6 +588,29 @@
     input:focus, select:focus {
       border-color: var(--bright-green);
       box-shadow: 0 0 8px rgba(82, 183, 136, 0.4);
+    }
+
+    .show-password-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: -8px;
+      margin-bottom: 14px;
+    }
+
+    .show-password-container input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--bright-green);
+      cursor: pointer;
+    }
+
+    .show-password-container label {
+      margin-bottom: 0;
+      font-size: 0.8rem;
+      color: var(--mint-text);
+      cursor: pointer;
+      text-transform: none;
     }
 
     .field-group {
@@ -1029,6 +1070,11 @@
           <label>Password</label>
           <input type="password" id="login-password" placeholder="••••••••" />
           
+          <div class="show-password-container">
+            <input type="checkbox" id="chk-show-login-password" />
+            <label for="chk-show-login-password">Show Password</label>
+          </div>
+
           <div id="login-error" class="error-msg"></div>
           
           <button class="btn btn-bold-green" id="btn-handle-login">LOG IN ACCOUNT</button>
@@ -1052,6 +1098,13 @@
       <section id="screen-signup" class="screen">
         <h2 style="text-align:center; margin:20px 0; color:#fff;" class="accent-title">REGISTER ACCOUNT</h2>
         <div class="card">
+
+          <div class="avatar-container">
+            <img id="signup-profile-preview" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Profile Preview" />
+            <input type="file" id="signup-photo-input" accept="image/*" style="display: none;" />
+            <button class="btn btn-text" id="btn-upload-signup-photo" style="color: var(--gold-primary);">Upload Profile Photo</button>
+          </div>
+
           <label>Full Name <span style="color:#ff6b6b;">*</span></label>
           <input type="text" id="signup-name" placeholder="John Doe" />
           
@@ -1064,6 +1117,11 @@
           <label>Password (Min 6 chars) <span style="color:#ff6b6b;">*</span></label>
           <input type="password" id="signup-password" placeholder="••••••••" />
           
+          <div class="show-password-container">
+            <input type="checkbox" id="chk-show-signup-password" />
+            <label for="chk-show-signup-password">Show Password</label>
+          </div>
+
           <div id="signup-error" class="error-msg"></div>
           
           <button class="btn btn-bold-gold" id="btn-handle-signup">REGISTER ACCOUNT</button>
@@ -1224,7 +1282,7 @@
         <div class="card" style="margin-top:12px;">
           <div class="avatar-container">
             <img id="profile-img" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" />
-            <input type="file" id="profile-photo-input" style="display: none;" />
+            <input type="file" id="profile-photo-input" accept="image/*" style="display: none;" />
             <button class="btn btn-text" id="btn-change-photo" style="color: var(--gold-primary);">Change Picture</button>
           </div>
 
@@ -1351,7 +1409,8 @@
       currentLocalPrice: 0,
       currentModalType: "local",
       isFullPilaoSelected: false,
-      orderList: []
+      orderList: [],
+      signupPhotoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
     };
 
     const pdfMenu = {
@@ -1647,11 +1706,10 @@
 
       try {
         const userCredential = await window.firebaseSignUp(email, pass);
-        const defaultPhotoUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
 
         await window.firebaseUpdateProfile(userCredential.user, {
           displayName: `${name} (${phone})`,
-          photoURL: defaultPhotoUrl
+          photoURL: state.signupPhotoUrl
         });
 
         if (window.logFirebaseEvent) {
@@ -1726,6 +1784,19 @@
               console.error("Failed to update profile photo in Firebase:", err);
             }
           }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleSignupPhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const photoDataUrl = e.target.result;
+          document.getElementById('signup-profile-preview').src = photoDataUrl;
+          state.signupPhotoUrl = photoDataUrl;
         };
         reader.readAsDataURL(file);
       }
@@ -2041,6 +2112,15 @@
     document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
     document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
     
+    // Show password toggles
+    document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
+      document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
+      document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
+    });
+
     const locationInput = document.getElementById('order-location');
     const tableInput = document.getElementById('order-table');
     const groupLocation = document.getElementById('group-location');
@@ -2104,6 +2184,9 @@
 
     document.getElementById('btn-change-photo').addEventListener('click', () => document.getElementById('profile-photo-input').click());
     document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+
+    document.getElementById('btn-upload-signup-photo').addEventListener('click', () => document.getElementById('signup-photo-input').click());
+    document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
 
     document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
     document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
