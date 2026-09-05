@@ -7,7 +7,7 @@
   
   <link id="pwa-manifest" rel="manifest">
   <script>
-    // Inline PWA Web App Manifest configuration
+    // Inline PWA Web App Manifest configuration with Platter (5 People) photo icon
     const manifestData = {
       "name": "Saucy Meatball Restaurant",
       "short_name": "SaucyMeatball",
@@ -18,12 +18,12 @@
       "description": "Saucy Meatball Restaurant - Order online easily",
       "icons": [
         {
-          "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=192",
+          "src": "https://drive.google.com/thumbnail?id=1qSxM7R-D3pgLMsZ9-4XVzw_958hQPX7O&sz=w1000",
           "sizes": "192x192",
           "type": "image/png"
         },
         {
-          "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=512",
+          "src": "https://drive.google.com/thumbnail?id=1qSxM7R-D3pgLMsZ9-4XVzw_958hQPX7O&sz=w1000",
           "sizes": "512x512",
           "type": "image/png"
         }
@@ -144,7 +144,7 @@
 
     /* ALWAYS VISIBLE PWA INSTALL BANNER AT THE TOP */
     .pwa-install-banner {
-      display: flex; /* Always display top banner */
+      display: flex;
       background: var(--gold-gradient);
       color: #000;
       padding: 12px 16px;
@@ -179,7 +179,7 @@
     /* TOP FLOATING BAR */
     .top-floating-bar {
       position: sticky;
-      top: 48px; /* Adjusted to sit under PWA banner */
+      top: 48px;
       z-index: 900;
       background: rgba(8, 28, 21, 0.95);
       backdrop-filter: blur(8px);
@@ -203,7 +203,6 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* GLOBAL PAYMENT DIAL PANEL */
     .global-payment-panel {
       display: none;
       margin: 16px;
@@ -1223,7 +1222,8 @@
         <div class="card" style="margin-top:12px;">
           <div class="avatar-container">
             <img id="profile-img" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" />
-            <input type="file" id="profile-photo-input" accept="image/*" style="display: none;" />
+            <!-- Accepts all image formats supported by the system -->
+            <input type="file" id="profile-photo-input" style="display: none;" />
             <button class="btn btn-text" id="btn-change-photo" style="color: var(--gold-primary);">Change Picture</button>
           </div>
 
@@ -1331,7 +1331,6 @@
   </div>
 
   <script>
-    // REGISTER DYNAMIC SERVICE WORKER FOR PWA COMPLIANCE
     if ('serviceWorker' in navigator) {
       const swCode = `
         self.addEventListener('install', (e) => self.skipWaiting());
@@ -1425,10 +1424,8 @@
 
     const pilaoSnackOptions = ["No side dish", "soup", "gravy", "beans"];
 
-    // ADVANCED CONTINUOUS PWA INSTALLATION LOGIC
     let deferredPrompt;
 
-    // Listen for browser install prompt trigger
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -1436,7 +1433,6 @@
       if (banner) banner.style.display = 'flex';
     });
 
-    // Handle Install Button Click
     document.getElementById('btn-install-pwa').addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -1446,12 +1442,10 @@
         }
         deferredPrompt = null;
       } else {
-        // Fallback instructions for iOS Safari / Unsupported Browsers
         alert("To install Saucy Meatball to your Home Screen:\n\n1. Tap your browser's share or menu icon (3 dots / Share button).\n2. Select 'Add to Home Screen' or 'Install App'.");
       }
     });
 
-    // Hide banner automatically if already running as installed App
     window.addEventListener('appinstalled', () => {
       document.getElementById('pwa-install-banner').style.display = 'none';
     });
@@ -1688,16 +1682,29 @@
       }
     };
 
+    // Supports all image formats and updates the profile instantly upon selection
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = async function(e) {
-          if (window.auth.currentUser) {
-            await window.firebaseUpdateProfile(window.auth.currentUser, {
-              photoURL: e.target.result
-            });
-            document.getElementById('profile-img').src = e.target.result;
+          const photoDataUrl = e.target.result;
+          
+          // Instant UI update
+          document.getElementById('profile-img').src = photoDataUrl;
+          if (state.currentUser) {
+            state.currentUser.photoURL = photoDataUrl;
+          }
+
+          // Persist update in Firebase Auth state
+          if (window.auth && window.auth.currentUser) {
+            try {
+              await window.firebaseUpdateProfile(window.auth.currentUser, {
+                photoURL: photoDataUrl
+              });
+            } catch (err) {
+              console.error("Failed to update profile photo in Firebase:", err);
+            }
           }
         };
         reader.readAsDataURL(file);
