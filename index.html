@@ -114,6 +114,33 @@
       border-right: 1px solid var(--card-border);
     }
 
+    /* PWA INSTALL BANNER */
+    .pwa-install-banner {
+      display: none;
+      background: var(--gold-gradient);
+      color: #000;
+      padding: 10px 16px;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      position: sticky;
+      top: 0;
+      z-index: 1001;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .pwa-install-btn {
+      background: #000;
+      color: var(--gold-primary);
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+
     /* TOP FLOATING BAR */
     .top-floating-bar {
       position: sticky;
@@ -440,14 +467,21 @@
       background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
       border: 1px solid var(--card-border);
       border-radius: 18px;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .promo-img {
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
+      object-fit: cover;
     }
 
     .promo-title { font-size: 0.75rem; color: var(--bright-green); font-weight: 800; }
-    .promo-discount { font-size: 1rem; font-weight: 900; color: #fff; margin: 4px 0; }
+    .promo-discount { font-size: 0.95rem; font-weight: 900; color: #fff; margin: 2px 0; }
 
     .card {
       background: var(--card-bg);
@@ -711,6 +745,25 @@
 
     .checkbox-item input { accent-color: var(--bright-green); }
 
+    .mode-selection-box {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mode-selection-box label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-transform: none;
+      margin-bottom: 0;
+    }
+
     .nav-bar {
       position: fixed;
       bottom: 12px;
@@ -883,6 +936,11 @@
 
   <div class="app-container">
     
+    <div class="pwa-install-banner" id="pwa-install-banner">
+      <span>📱 Add Saucy Meatball App to Home Screen!</span>
+      <button class="pwa-install-btn" id="btn-install-pwa">ADD TO HOME</button>
+    </div>
+
     <div class="top-floating-bar" id="top-floating-bar">
       <div>
         <span class="floating-text">Total Order Items: </span>
@@ -1006,12 +1064,13 @@
         <div class="dishes-scroll" id="home-dishes-container"></div>
 
         <div class="promo-banner">
-          <div>
+          <img src="https://drive.google.com/thumbnail?id=1ZTlUt9tcii3OICmM49l8D-G7K6yP4nW6&sz=w1000" alt="Pizza Offer" class="promo-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300';"/>
+          <div style="flex:1;">
             <p class="promo-title">SPECIAL PROMO</p>
-            <p class="promo-discount">(buy one pizza and get one free)</p>
+            <p class="promo-discount">Buy 1 Pizza & Get 1 Free!</p>
             <p style="font-size:0.75rem; color:var(--subtext);">Available every Friday</p>
           </div>
-          <button class="btn-pill-primary" style="padding: 8px 16px; font-size: 0.8rem;" id="btn-promo-order">Order Now</button>
+          <button class="btn-pill-primary" style="padding: 8px 12px; font-size: 0.8rem;" id="btn-promo-order">Order Now</button>
         </div>
 
       </section>
@@ -1166,8 +1225,23 @@
   <div id="modal-food" class="modal">
     <div class="modal-content">
       <h3 id="local-food-title" class="accent-title">Select Accompaniment Foods</h3>
-      <p style="font-size: 0.85rem; margin-top: 4px; color: var(--subtext);">Choose sides for your dish:</p>
+      <p style="font-size: 0.85rem; margin-top: 4px; color: var(--subtext);" id="modal-food-subtitle">Choose options for your dish:</p>
       
+      <div id="local-mode-container" style="display:none; margin-top:10px;">
+        <div class="mode-selection-box">
+          <label>
+            <input type="radio" name="pilao-mode" value="sides" checked onchange="togglePilaoMode(false)" />
+            <span>Regular Dish (Choose Sides)</span>
+          </label>
+        </div>
+        <div class="mode-selection-box">
+          <label>
+            <input type="radio" name="pilao-mode" value="full_pilao" onchange="togglePilaoMode(true)" />
+            <span>Full Pilao Only (No Side Dishes)</span>
+          </label>
+        </div>
+      </div>
+
       <div class="checkbox-grid" id="food-options-grid"></div>
       <input type="text" id="local-food-location" placeholder="Location or Table Number..." />
       
@@ -1187,6 +1261,8 @@
       currentUser: null,
       currentLocalSauce: "",
       currentLocalPrice: 0,
+      currentModalType: "local",
+      isFullPilaoSelected: false,
       orderList: []
     };
 
@@ -1212,7 +1288,7 @@
         ["Banana", "500/=", 500, false]
       ],
       "snacks and take away": [
-        ["Pilao", "10,000/=", 10000, false],
+        ["Pilao", "10,000/=", 10000, "pilao_sides"],
         ["Chicken Piece", "8,000/=", 8000, false],
         ["Pilao Chicken Piece", "18,000/=", 18000, false],
         ["Plain Chips", "6,000/=", 6000, false],
@@ -1222,9 +1298,9 @@
         ["Chapatti", "1,000/=", 1000, false],
         ["Kebab", "2,500/=", 2500, false],
         ["Chap", "2,500/=", 2500, false],
-        ["Pizza Small", "20,000/=", 20000, false],
-        ["Pizza Medium", "25,000/=", 25000, false],
-        ["Pizza Large", "27,000/=", 27000, false]
+        ["Pizza Small", "20,000/=", 20000, false, "https://drive.google.com/thumbnail?id=1ZTlUt9tcii3OICmM49l8D-G7K6yP4nW6&sz=w1000"],
+        ["Pizza Medium", "25,000/=", 25000, false, "https://drive.google.com/thumbnail?id=1ZTlUt9tcii3OICmM49l8D-G7K6yP4nW6&sz=w1000"],
+        ["Pizza Large", "27,000/=", 27000, false, "https://drive.google.com/thumbnail?id=1ZTlUt9tcii3OICmM49l8D-G7K6yP4nW6&sz=w1000"]
       ],
       "local dishes": [
         ["Beef", "10,000/=", 10000, true],
@@ -1258,6 +1334,30 @@
       "Chips", "½pilao", "Matooke", "Rice", "Posho", 
       "Kalo", "Sweet Potato", "Cassava", "Yam", "Pumpkin"
     ];
+
+    const pilaoSnackOptions = ["No side dish", "soup", "gravy", "beans"];
+
+    // PWA INSTALLATION PROMPT LOGIC
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'flex';
+    });
+
+    document.getElementById('btn-install-pwa').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('pwa-install-banner').style.display = 'none';
+        }
+        deferredPrompt = null;
+      } else {
+        alert("To save this app to your home screen:\n\n1. Tap your browser menu (3 dots or share icon)\n2. Select 'Add to Home Screen' or 'Install App'.");
+      }
+    });
 
     function renderHomePageDishes() {
       const container = document.getElementById('home-dishes-container');
@@ -1625,17 +1725,61 @@
       }
     }
 
-    function handleAddClick(name, price, isCustomizable) {
+    function togglePilaoMode(isFullPilao) {
+      state.isFullPilaoSelected = isFullPilao;
+      const grid = document.getElementById('food-options-grid');
+      grid.style.display = isFullPilao ? 'none' : 'grid';
+    }
+
+    function handlePilaoOptionClick(clickedCheckbox) {
+      if (clickedCheckbox.checked) {
+        document.querySelectorAll('#food-options-grid input[type="checkbox"]').forEach(cb => {
+          if (cb !== clickedCheckbox) {
+            cb.checked = false;
+          }
+        });
+      }
+    }
+
+    function handleAddClick(name, price, customOption) {
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('add_to_cart', { item_name: name, value: price });
       }
 
-      if (isCustomizable) {
-        state.currentLocalSauce = name;
-        state.currentLocalPrice = price;
-        document.getElementById('local-food-title').innerText = `Sides for: ${name}`;
+      state.currentLocalSauce = name;
+      state.currentLocalPrice = price;
+
+      const modeContainer = document.getElementById('local-mode-container');
+      const grid = document.getElementById('food-options-grid');
+      grid.style.display = 'grid';
+
+      if (customOption === "pilao_sides") {
+        state.currentModalType = "pilao_snack";
+        modeContainer.style.display = 'none';
+        document.getElementById('local-food-title').innerText = `Side dishes for: ${name}`;
+        document.getElementById('modal-food-subtitle').innerText = "Select at most one option:";
         
-        const grid = document.getElementById('food-options-grid');
+        grid.innerHTML = "";
+        pilaoSnackOptions.forEach(opt => {
+          const labelText = opt === "No side dish" ? opt : opt.charAt(0).toUpperCase() + opt.slice(1);
+          grid.innerHTML += `
+            <label class="checkbox-item">
+              <input type="checkbox" value="${opt}" onchange="handlePilaoOptionClick(this)"> ${labelText}
+            </label>
+          `;
+        });
+        openModal('modal-food');
+      } else if (customOption === true) {
+        state.currentModalType = "local";
+        state.isFullPilaoSelected = false;
+        modeContainer.style.display = 'block';
+        
+        const sidesRadio = document.querySelector('input[name="pilao-mode"][value="sides"]');
+        if (sidesRadio) sidesRadio.checked = true;
+        
+        document.getElementById('local-food-title').innerText = `Options for: ${name}`;
+        document.getElementById('modal-food-subtitle').innerText = "Choose options below:";
+        
         grid.innerHTML = "";
         customFoodOptions.forEach(food => {
           grid.innerHTML += `
@@ -1644,7 +1788,6 @@
             </label>
           `;
         });
-        
         openModal('modal-food');
       } else {
         state.orderList.push({ name: name, displayName: name, price: price });
@@ -1661,13 +1804,23 @@
     }
 
     function calculateLocalPrice(sauceName, selectedArray, basePrice) {
+      if (state.currentModalType === "pilao_snack") {
+        return basePrice;
+      }
+
+      if (state.isFullPilaoSelected) {
+        if (basePrice === 6000) return basePrice * 2;
+        if (basePrice === 10000) return basePrice + 5000;
+        return basePrice;
+      }
+
       let finalPrice = basePrice;
       const hasChips = selectedArray.includes("Chips");
       const hasPilao = selectedArray.includes("½pilao");
       const hasOtherFoods = selectedArray.some(item => item !== "Chips" && item !== "½pilao");
 
       if (sauceName === "Panfried Beef") {
-        if (hasChips && hasPilao) {
+        if (hasPilao) {
           finalPrice = 17000;
         } else if (hasChips && hasOtherFoods) {
           finalPrice = 15000;
@@ -1695,11 +1848,18 @@
     }
 
     function confirmLocalFoodToForm() {
-      const selectedArray = getSelectedCheckboxes();
+      const selectedArray = state.isFullPilaoSelected ? [] : getSelectedCheckboxes();
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       
-      const sidesText = selectedArray.length > 0 ? ` (${selectedArray.join(', ')})` : '';
-      const fullDisplayName = `${state.currentLocalSauce}${sidesText}`;
+      let fullDisplayName = state.currentLocalSauce;
+      if (state.isFullPilaoSelected) {
+        fullDisplayName += ` (Full Pilao)`;
+      } else if (selectedArray.length > 0) {
+        const activeSides = selectedArray.filter(opt => opt !== "No side dish");
+        if (activeSides.length > 0) {
+          fullDisplayName += ` (${activeSides.join(', ')})`;
+        }
+      }
 
       state.orderList.push({ name: state.currentLocalSauce, displayName: fullDisplayName, price: finalPrice });
       syncOrderInputText();
@@ -1716,12 +1876,19 @@
     }
 
     function sendLocalFoodDirectWhatsApp() {
-      const selectedArray = getSelectedCheckboxes();
+      const selectedArray = state.isFullPilaoSelected ? [] : getSelectedCheckboxes();
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       const locVal = document.getElementById('local-food-location').value.trim() || "Not specified";
       
-      const sidesText = selectedArray.length > 0 ? ` (${selectedArray.join(', ')})` : '';
-      const fullDisplayName = `${state.currentLocalSauce}${sidesText}`;
+      let fullDisplayName = state.currentLocalSauce;
+      if (state.isFullPilaoSelected) {
+        fullDisplayName += ` (Full Pilao)`;
+      } else if (selectedArray.length > 0) {
+        const activeSides = selectedArray.filter(opt => opt !== "No side dish");
+        if (activeSides.length > 0) {
+          fullDisplayName += ` (${activeSides.join(', ')})`;
+        }
+      }
 
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
