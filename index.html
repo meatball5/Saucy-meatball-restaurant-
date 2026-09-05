@@ -382,7 +382,8 @@
       border-radius: 10px;
       margin-bottom: 8px;
       overflow: hidden;
-      background: var(--forest-accent);
+      background: #0b2b1f;
+      position: relative;
     }
 
     .dish-img {
@@ -1263,6 +1264,7 @@
       container.innerHTML = "";
       
       const specialMeals = pdfMenu["special dishes"] || [];
+      const fallbackPlaceholder = "https://images.unsplash.com/photo-1544025162-d76694265947?w=300";
       
       specialMeals.forEach(([name, displayPrice, price, isCustomizable, badge, imgUrl, desc]) => {
         const dishCard = document.createElement('div');
@@ -1270,11 +1272,12 @@
         
         const badgeHtml = badge ? `<span class="badge-tag"${badge === "CHEF'S PICK" ? ' style="background:var(--mtn-yellow); color:#000;"' : ''}>${badge}</span>` : '';
         const descHtml = desc || 'Special restaurant dish cooked fresh on order';
+        const cleanImgUrl = encodeURI(imgUrl);
         
         dishCard.innerHTML = `
           ${badgeHtml}
           <div class="dish-img-container">
-            <img class="dish-img" src="${imgUrl}" alt="${name}" />
+            <img class="dish-img" src="${cleanImgUrl}" alt="${name}" onerror="this.onerror=null; this.src='${fallbackPlaceholder}';" />
           </div>
           <p class="dish-name">${name}</p>
           <p class="dish-desc">${descHtml}</p>
@@ -1544,7 +1547,6 @@
         return;
       }
 
-      // Check that at least one field (location or table) is filled out
       if (!loc && !table) {
         alert("fill in location or table number");
         return;
@@ -1553,7 +1555,6 @@
       const formattedItems = state.orderList.map(i => `- ${i.displayName || i.name} - UGX ${i.price.toLocaleString()}`).join('\n');
       const totalCost = state.orderList.reduce((acc, item) => acc + item.price, 0);
 
-      // Build destination detail string based on which field was filled
       let destinationDetails = "";
       if (loc) {
         destinationDetails = `Delivery Location: ${loc}`;
@@ -1665,7 +1666,6 @@
       const hasPilao = selectedArray.includes("½pilao");
       const hasOtherFoods = selectedArray.some(item => item !== "Chips" && item !== "½pilao");
 
-      // PRICING RULES: Panfried Beef
       if (sauceName === "Panfried Beef") {
         if (hasChips && hasPilao) {
           finalPrice = 17000;
@@ -1677,7 +1677,6 @@
         return finalPrice;
       }
 
-      // PRICING RULES: Liver
       if (sauceName === "Liver") {
         if ((hasChips && hasPilao) || (hasChips && hasOtherFoods) || (hasPilao && hasOtherFoods)) {
           finalPrice = 17000;
@@ -1687,7 +1686,6 @@
         return finalPrice;
       }
 
-      // Default logic for other customizable dishes
       const hasOtherThanPilao = selectedArray.some(item => item !== "½pilao");
       if (hasPilao && hasOtherThanPilao && sauceName !== "Panfried Goat" && sauceName !== "Panfried Chicken") {
         finalPrice += 3000;
@@ -1741,7 +1739,6 @@
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function openModal(id) { document.getElementById(id).classList.add('active'); }
 
-    // Event Listeners
     document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
     document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
     document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
@@ -1752,7 +1749,6 @@
     document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
     document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
     
-    // MUTUAL EXCLUSION LOGIC FOR LOCATION AND TABLE NUMBER
     const locationInput = document.getElementById('order-location');
     const tableInput = document.getElementById('order-table');
     const groupLocation = document.getElementById('group-location');
@@ -1774,7 +1770,6 @@
       }
     });
 
-    // PAYMENT DYNAMIC MUTUAL EXCLUSION & BRANCH TOGGLE HANDLERS
     const btnMtn = document.getElementById('btn-toggle-mtn-branches');
     const btnAirtel = document.getElementById('btn-toggle-airtel-branches');
     const mtnContainer = document.getElementById('mtn-branch-container');
@@ -1796,11 +1791,9 @@
       }
     });
 
-    // MTN MoMo Branch Actions
     document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*924384#'));
     document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*91126006#'));
 
-    // Airtel Money Branch Actions
     document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*165*9*6627096#'));
     document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*165*9*7139511#'));
 
@@ -1820,7 +1813,6 @@
     document.getElementById('btn-change-photo').addEventListener('click', () => document.getElementById('profile-photo-input').click());
     document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
 
-    // NAVIGATION SWITCHING
     document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
     document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
     document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
