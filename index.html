@@ -7,7 +7,7 @@
   
   <link id="pwa-manifest" rel="manifest">
   <script>
-    // Inline PWA Web App Manifest configuration with Platter (5 People) photo icon
+    // Inline PWA Web App Manifest configuration
     const manifestData = {
       "name": "Saucy Meatball Restaurant",
       "short_name": "SaucyMeatball",
@@ -49,7 +49,9 @@
       signOut, 
       onAuthStateChanged,
       sendPasswordResetEmail,
-      updateProfile 
+      updateProfile,
+      setPersistence,
+      indexedDBLocalPersistence
     } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -63,8 +65,12 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    window.auth = getAuth(app);
+    const auth = getAuth(app);
+    window.auth = auth;
     window.analytics = getAnalytics(app);
+
+    // Set local persistence for fast instant session auto-login
+    setPersistence(auth, indexedDBLocalPersistence).catch(err => console.log("Persistence setup:", err));
 
     window.logFirebaseEvent = (eventName, params = {}) => {
       if (window.analytics) {
@@ -144,7 +150,6 @@
       border-right: 1px solid var(--card-border);
     }
 
-    /* AUTOMATIC FULL SCREEN RESPONSIVENESS FOR WINDOWS / MAC / LARGE DESKTOPS */
     @media (min-width: 768px) {
       .app-container {
         max-width: 100vw;
@@ -162,7 +167,6 @@
       }
     }
 
-    /* PWA INSTALL BANNER */
     .pwa-install-banner {
       display: flex;
       background: var(--gold-gradient);
@@ -196,7 +200,6 @@
       transform: scale(0.95);
     }
 
-    /* TOP FLOATING BAR */
     .top-floating-bar {
       position: sticky;
       top: 48px;
@@ -228,7 +231,6 @@
       margin: 16px;
     }
 
-    /* BRANDING TITLE STYLES */
     .brand-container {
       display: inline-flex;
       flex-direction: column;
@@ -1507,23 +1509,17 @@
       document.getElementById(modalId).classList.remove('active');
     }
 
-    // Check installation state on startup and toggle button
     function updateInstallBannerVisibility() {
       const banner = document.getElementById('pwa-install-banner');
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      
       if (banner) {
-        if (isStandalone) {
-          banner.style.display = 'none';
-        } else {
-          banner.style.display = 'flex';
-        }
+        banner.style.display = isStandalone ? 'none' : 'flex';
       }
     }
 
     updateInstallBannerVisibility();
 
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', () => {
       updateInstallBannerVisibility();
     });
 
@@ -1542,7 +1538,7 @@
         }
         deferredPrompt = null;
       } else {
-        alert("To install Saucy Meatball to your Home Screen:\n\n1. Tap your browser's share or menu icon (3 dots / Share button).\n2. Select 'Add to Home Screen' or 'Install App'.");
+        alert("To install Saucy Meatball to your Home Screen:\n\n1. Tap your browser's share or menu icon.\n2. Select 'Add to Home Screen' or 'Install App'.");
       }
     });
 
@@ -2104,6 +2100,8 @@
         }
       }
 
+      const message = `Quick Order Request!\n\nDish: ${fullDisplayName}\nTotal Price: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
+      
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
           items: fullDisplayName,
@@ -2112,101 +2110,85 @@
         });
       }
 
-      const message = `New Quick Order Request!\n\nDish: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nDestination/Table: ${locVal}\n\nPlease confirm!`;
-      dispatchWhatsApp(message);
       closeModal('modal-food');
+      dispatchWhatsApp(message);
     }
 
-    // Attach payment toggle button listeners
-    const btnMtn = document.getElementById('btn-toggle-mtn-branches');
-    const btnAirtel = document.getElementById('btn-toggle-airtel-branches');
-    const mtnBranches = document.getElementById('mtn-branch-container');
-    const airtelBranches = document.getElementById('airtel-branch-container');
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHomePageDishes();
+      renderMenu();
 
-    btnMtn.addEventListener('click', () => {
-      const isMtnVisible = mtnBranches.classList.contains('active');
+      document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
+        document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
+      });
 
-      if (isMtnVisible) {
-        mtnBranches.classList.remove('active');
-        btnAirtel.style.display = 'block';
-      } else {
-        mtnBranches.classList.add('active');
-        airtelBranches.classList.remove('active');
-        btnAirtel.style.display = 'none';
-      }
+      document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
+        document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
+      });
+
+      document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
+      document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
+      document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
+      
+      document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
+      document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
+      
+      document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
+      document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
+      document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
+
+      document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-orders-list-btn')));
+      document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
+      document.getElementById('link-view-all').addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab('menu', document.getElementById('nav-menu-btn'));
+      });
+      document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
+
+      document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
+      document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
+      document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
+
+      document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+
+      document.getElementById('nav-home-btn').addEventListener('click', function() { switchTab('home', this); });
+      document.getElementById('nav-menu-btn').addEventListener('click', function() { switchTab('menu', this); });
+      document.getElementById('nav-order-btn').addEventListener('click', function() { switchTab('menu', this); });
+      document.getElementById('nav-orders-list-btn').addEventListener('click', function() { switchTab('order', this); });
+      document.getElementById('nav-contact-btn').addEventListener('click', function() { switchTab('contact', this); });
+      document.getElementById('nav-profile-btn').addEventListener('click', function() { switchTab('profile', this); });
+
+      document.getElementById('btn-change-photo').addEventListener('click', () => {
+        document.getElementById('profile-photo-input').click();
+      });
+      document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+
+      document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
+        document.getElementById('signup-photo-input').click();
+      });
+      document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
+
+      document.getElementById('btn-toggle-mtn-branches').addEventListener('click', () => {
+        const mtnContainer = document.getElementById('mtn-branch-container');
+        const airtelContainer = document.getElementById('airtel-branch-container');
+        airtelContainer.classList.remove('active');
+        mtnContainer.classList.toggle('active');
+      });
+
+      document.getElementById('btn-toggle-airtel-branches').addEventListener('click', () => {
+        const mtnContainer = document.getElementById('mtn-branch-container');
+        const airtelContainer = document.getElementById('airtel-branch-container');
+        mtnContainer.classList.remove('active');
+        airtelContainer.classList.toggle('active');
+      });
+
+      // Updated Payment Merchant Dial Codes
+      document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*924384#'));
+      document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*61126006#'));
+
+      document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*185*9*6627096#'));
+      document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*185*9*7139511#'));
     });
-
-    btnAirtel.addEventListener('click', () => {
-      const isAirtelVisible = airtelBranches.classList.contains('active');
-
-      if (isAirtelVisible) {
-        airtelBranches.classList.remove('active');
-        btnMtn.style.display = 'block';
-      } else {
-        airtelBranches.classList.add('active');
-        mtnBranches.classList.remove('active');
-        btnMtn.style.display = 'none';
-      }
-    });
-
-    // Attach event listeners for payment dial actions
-    document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*2*1#'));
-    document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*2*2#'));
-    document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*185*3*1*1#'));
-    document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*185*3*1*2#'));
-
-    // Navigation and UI interactions
-    document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
-    document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
-    document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
-    document.getElementById('nav-orders-list-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
-    document.getElementById('nav-contact-btn').addEventListener('click', (e) => switchTab('contact', e.currentTarget));
-    document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
-
-    document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
-    document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
-    document.getElementById('link-view-all').addEventListener('click', (e) => {
-      e.preventDefault();
-      switchTab('menu', document.getElementById('nav-menu-btn'));
-    });
-    document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
-
-    document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
-    document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
-    document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
-    document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
-
-    document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
-    document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
-    document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
-    document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
-    document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
-
-    document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
-    document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
-    document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
-
-    document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
-      document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
-    });
-
-    document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
-      document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
-    });
-
-    document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
-      document.getElementById('signup-photo-input').click();
-    });
-    document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
-
-    document.getElementById('btn-change-photo').addEventListener('click', () => {
-      document.getElementById('profile-photo-input').click();
-    });
-    document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
-
-    // Initial renders
-    renderHomePageDishes();
-    renderMenu();
   </script>
 </body>
 </html>
