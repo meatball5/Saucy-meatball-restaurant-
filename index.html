@@ -20,12 +20,14 @@
         {
           "src": "https://drive.google.com/thumbnail?id=1qSxM7R-D3pgLMsZ9-4XVzw_958hQPX7O&sz=w1000",
           "sizes": "192x192",
-          "type": "image/png"
+          "type": "image/png",
+          "purpose": "any maskable"
         },
         {
           "src": "https://drive.google.com/thumbnail?id=1qSxM7R-D3pgLMsZ9-4XVzw_958hQPX7O&sz=w1000",
           "sizes": "512x512",
-          "type": "image/png"
+          "type": "image/png",
+          "purpose": "any maskable"
         }
       ]
     };
@@ -142,7 +144,7 @@
       border-right: 1px solid var(--card-border);
     }
 
-    /* ALWAYS VISIBLE PWA INSTALL BANNER AT THE TOP */
+    /* PWA INSTALL BANNER */
     .pwa-install-banner {
       display: flex;
       background: var(--gold-gradient);
@@ -1222,7 +1224,6 @@
         <div class="card" style="margin-top:12px;">
           <div class="avatar-container">
             <img id="profile-img" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" />
-            <!-- Accepts all image formats supported by the system -->
             <input type="file" id="profile-photo-input" style="display: none;" />
             <button class="btn btn-text" id="btn-change-photo" style="color: var(--gold-primary);">Change Picture</button>
           </div>
@@ -1426,11 +1427,32 @@
 
     let deferredPrompt;
 
+    // Check installation state on startup and toggle button
+    function updateInstallBannerVisibility() {
+      const banner = document.getElementById('pwa-install-banner');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      
+      if (banner) {
+        if (isStandalone) {
+          banner.style.display = 'none';
+        } else {
+          banner.style.display = 'flex';
+        }
+      }
+    }
+
+    // Run visibility check on startup
+    updateInstallBannerVisibility();
+
+    // Dynamically adjust visibility if standalone state changes
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
+      updateInstallBannerVisibility();
+    });
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      const banner = document.getElementById('pwa-install-banner');
-      if (banner) banner.style.display = 'flex';
+      updateInstallBannerVisibility();
     });
 
     document.getElementById('btn-install-pwa').addEventListener('click', async () => {
@@ -1448,6 +1470,7 @@
 
     window.addEventListener('appinstalled', () => {
       document.getElementById('pwa-install-banner').style.display = 'none';
+      deferredPrompt = null;
     });
 
     function renderHomePageDishes() {
@@ -1682,7 +1705,6 @@
       }
     };
 
-    // Supports all image formats and updates the profile instantly upon selection
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -1690,13 +1712,11 @@
         reader.onload = async function(e) {
           const photoDataUrl = e.target.result;
           
-          // Instant UI update
           document.getElementById('profile-img').src = photoDataUrl;
           if (state.currentUser) {
             state.currentUser.photoURL = photoDataUrl;
           }
 
-          // Persist update in Firebase Auth state
           if (window.auth && window.auth.currentUser) {
             try {
               await window.firebaseUpdateProfile(window.auth.currentUser, {
