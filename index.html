@@ -1308,7 +1308,7 @@
 
           <div class="branch-sub-buttons" id="mtn-branch-container">
             <button class="btn btn-sub-mtn" id="btn-mtn-kimera" style="font-size: 0.75rem;" onclick="dialCode('*165*3*924384#')">Kimera Road Branch</button>
-            <button class="btn btn-sub-mtn" id="btn-mtn-sunways" style="font-size: 0.75rem;" onclick="dialCode('*165*3*61126006#')">Sunways Branch</button>
+            <button class="btn btn-sub-mtn" id="btn-mtn-sunways" style="font-size: 0.75rem;" onclick="dialCode('*165*3*91126006#')">Sunways Branch</button>
           </div>
 
           <div class="branch-sub-buttons" id="airtel-branch-container">
@@ -2112,51 +2112,45 @@
         });
       }
 
-      const message = `New Quick Order!\n\nDish: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
+      const message = `New Order Request!\n\nDish: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
       dispatchWhatsApp(message);
       closeModal('modal-food');
     }
 
-    // EVENT LISTENERS
     document.addEventListener('DOMContentLoaded', () => {
       renderHomePageDishes();
       renderMenu();
 
       document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
       document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
-      document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
       document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
+      document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
 
-      document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
-      document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
-      document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
-      document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
-      document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
-
-      document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
-      document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
-      document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
-
-      // Password Toggles
       document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
         document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
       });
+
       document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
         document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
       });
 
-      // Photo upload listeners
-      document.getElementById('btn-change-photo').addEventListener('click', () => {
-        document.getElementById('profile-photo-input').click();
-      });
-      document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+      document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
+      document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
+      document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
+
+      document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
+      document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
 
       document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
         document.getElementById('signup-photo-input').click();
       });
       document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
 
-      // Bottom Navigation Buttons
+      document.getElementById('btn-change-photo').addEventListener('click', () => {
+        document.getElementById('profile-photo-input').click();
+      });
+      document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+
       document.getElementById('nav-home-btn').addEventListener('click', function() { switchTab('home', this); });
       document.getElementById('nav-menu-btn').addEventListener('click', function() { switchTab('menu', this); });
       document.getElementById('nav-order-btn').addEventListener('click', function() { switchTab('order', this); });
@@ -2164,25 +2158,31 @@
       document.getElementById('nav-contact-btn').addEventListener('click', function() { switchTab('contact', this); });
       document.getElementById('nav-profile-btn').addEventListener('click', function() { switchTab('profile', this); });
 
-      // Home Hero / Quick CTA Links
       document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
       document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
-      document.getElementById('link-view-all').addEventListener('click', (e) => { e.preventDefault(); switchTab('menu', document.getElementById('nav-menu-btn')); });
+      document.getElementById('link-view-all').addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab('menu', document.getElementById('nav-menu-btn'));
+      });
       document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
 
-      // Payment Toggle Buttons
+      document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
+      document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
+      document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+
+      // Payment section branch toggle handlers
       document.getElementById('btn-toggle-mtn-branches').addEventListener('click', () => {
         const mtnContainer = document.getElementById('mtn-branch-container');
         const airtelContainer = document.getElementById('airtel-branch-container');
-        mtnContainer.classList.toggle('active');
         airtelContainer.classList.remove('active');
+        mtnContainer.classList.toggle('active');
       });
 
       document.getElementById('btn-toggle-airtel-branches').addEventListener('click', () => {
-        const airtelContainer = document.getElementById('airtel-branch-container');
         const mtnContainer = document.getElementById('mtn-branch-container');
-        airtelContainer.classList.toggle('active');
+        const airtelContainer = document.getElementById('airtel-branch-container');
         mtnContainer.classList.remove('active');
+        airtelContainer.classList.toggle('active');
       });
     });
   </script>
