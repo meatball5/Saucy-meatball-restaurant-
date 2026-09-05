@@ -1933,6 +1933,7 @@
       }
 
       if (state.isFullPilaoSelected) {
+        if (sauceName === "Liver") return 17000;
         if (basePrice === 6000) return basePrice * 2;
         if (basePrice === 10000) return basePrice + 5000;
         return basePrice;
