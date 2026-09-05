@@ -700,6 +700,32 @@
       margin-bottom: 14px;
     }
 
+    /* DELIVERY AREAS BANNER */
+    .delivery-areas-box {
+      background: rgba(11, 43, 31, 0.7);
+      border: 1px dashed var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .delivery-areas-header {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .delivery-areas-list {
+      font-size: 0.75rem;
+      color: var(--mint-text);
+      line-height: 1.4;
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -974,6 +1000,13 @@
           <div id="login-error" class="error-msg"></div>
           
           <button class="btn btn-bold-green" id="btn-handle-login">LOG IN ACCOUNT</button>
+
+          <div class="delivery-areas-box">
+            <div class="delivery-areas-header">🛵 Delivery Areas</div>
+            <div class="delivery-areas-list">
+              Kikoni, Makerere University, Kikumikikumi, Wandegeya, Kasubi, Kawaala, Bwayise, Old Kampala, Kawempe, Namungoona, Nankulabye & other places around Kampala.
+            </div>
+          </div>
         </div>
         
         <button class="btn btn-text" id="btn-open-forgot" style="color: var(--gold-primary); display: block; margin: 10px auto 0;">
@@ -1002,6 +1035,13 @@
           <div id="signup-error" class="error-msg"></div>
           
           <button class="btn btn-bold-gold" id="btn-handle-signup">REGISTER ACCOUNT</button>
+
+          <div class="delivery-areas-box">
+            <div class="delivery-areas-header">🛵 Delivery Areas</div>
+            <div class="delivery-areas-list">
+              Kikoni, Makerere University, Kikumikikumi, Wandegeya, Kasubi, Kawaala, Bwayise, Old Kampala, Kawempe, Namungoona, Nankulabye & other places around Kampala.
+            </div>
+          </div>
         </div>
         <button class="btn btn-text" id="btn-goto-login" style="color: #ffffff; display: block; margin: auto;">
           Already registered? Log In
@@ -1080,12 +1120,19 @@
         <div class="card">
           <div id="group-location" class="field-group">
             <label>Delivery Location</label>
-            <input type="text" id="order-location" placeholder="e.g., Ntinda Complex..." />
+            <input type="text" id="order-location" placeholder="e.g., Kikoni, Wandegeya..." />
           </div>
           
           <div id="group-table" class="field-group">
             <label>Table Number (For Dine-In)</label>
             <input type="text" id="order-table" placeholder="e.g., Table 5" />
+          </div>
+
+          <div class="delivery-areas-box" style="margin-top: 0; margin-bottom: 14px;">
+            <div class="delivery-areas-header">🛵 Delivery Areas</div>
+            <div class="delivery-areas-list">
+              Kikoni, Makerere University, Kikumikikumi, Wandegeya, Kasubi, Kawaala, Bwayise, Old Kampala, Kawempe, Namungoona, Nankulabye & other places around Kampala.
+            </div>
           </div>
           
           <label>Selected Menu Items</label>
