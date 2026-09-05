@@ -49,9 +49,7 @@
       signOut, 
       onAuthStateChanged,
       sendPasswordResetEmail,
-      updateProfile,
-      setPersistence,
-      indexedDBLocalPersistence
+      updateProfile 
     } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -65,12 +63,8 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    window.auth = auth;
+    window.auth = getAuth(app);
     window.analytics = getAnalytics(app);
-
-    // Set local persistence for fast instant session auto-login
-    setPersistence(auth, indexedDBLocalPersistence).catch(err => console.log("Persistence setup:", err));
 
     window.logFirebaseEvent = (eventName, params = {}) => {
       if (window.analytics) {
@@ -1189,7 +1183,7 @@
 
         <div class="section-header">
           <h2 class="section-title">Special Dishes</h2>
-          <a href="#" class="view-all" id="link-view-all">View all &rsaquo;</a>
+          <a href="#" class="view-all" id="link-view-all">View all ›</a>
         </div>
 
         <div class="dishes-scroll" id="home-dishes-container"></div>
@@ -1501,6 +1495,14 @@
 
     let deferredPrompt;
 
+    function isFridayInEAT() {
+      const eatDay = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Africa/Kampala',
+        weekday: 'long'
+      }).format(new Date());
+      return eatDay.toLowerCase() === 'friday';
+    }
+
     function openModal(modalId) {
       document.getElementById(modalId).classList.add('active');
     }
@@ -1512,14 +1514,19 @@
     function updateInstallBannerVisibility() {
       const banner = document.getElementById('pwa-install-banner');
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      
       if (banner) {
-        banner.style.display = isStandalone ? 'none' : 'flex';
+        if (isStandalone) {
+          banner.style.display = 'none';
+        } else {
+          banner.style.display = 'flex';
+        }
       }
     }
 
     updateInstallBannerVisibility();
 
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', () => {
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
       updateInstallBannerVisibility();
     });
 
@@ -1538,7 +1545,7 @@
         }
         deferredPrompt = null;
       } else {
-        alert("To install Saucy Meatball to your Home Screen:\n\n1. Tap your browser's share or menu icon.\n2. Select 'Add to Home Screen' or 'Install App'.");
+        alert("To install Saucy Meatball to your Home Screen:\n\n1. Tap your browser's share or menu icon (3 dots / Share button).\n2. Select 'Add to Home Screen' or 'Install App'.");
       }
     });
 
@@ -1881,7 +1888,9 @@
         });
       }
 
-      const message = `New Order Request!\n\nSelected Menu Items:\n${formattedItems}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\n${destinationDetails}\n\nPlease confirm my order!`;
+      const isFriday = isFridayInEAT();
+      const title = isFriday ? "*FRIDAY PIZZA OFFER*\n\nNew Order Request!" : "New Order Request!";
+      const message = `${title}\n\nSelected Menu Items:\n${formattedItems}\n\nTotal Price: UGX ${totalCost.toLocaleString()}\n${destinationDetails}\n\nPlease confirm my order!`;
       dispatchWhatsApp(message);
     }
 
@@ -2018,16 +2027,30 @@
         return basePrice;
       }
 
+      const hasPilao = selectedArray.includes("½pilao");
+
+      // Specific pricing rules for Chicken Stew and Fresh Fish with ½pilao
+      if (sauceName === "Chicken Stew" && hasPilao) {
+        return 16000;
+      }
+
+      if (sauceName === "Fresh Fish" && hasPilao) {
+        return 15000;
+      }
+
+      // Full Pilao Radio selected logic
       if (state.isFullPilaoSelected) {
-        if (sauceName === "Liver") return 17000;
+        if (sauceName === "Goat's Stew" || sauceName === "Fresh Fish" || sauceName === "Chicken Stew" || sauceName === "Panfried Beef" || sauceName === "Liver") {
+          return 17000;
+        }
         if (basePrice === 6000) return basePrice * 2;
         if (basePrice === 10000) return basePrice + 5000;
         return basePrice;
       }
 
+      // Combo pricing logic for sides
       let finalPrice = basePrice;
       const hasChips = selectedArray.includes("Chips");
-      const hasPilao = selectedArray.includes("½pilao");
       const hasOtherFoods = selectedArray.some(item => item !== "Chips" && item !== "½pilao");
 
       if (sauceName === "Panfried Beef") {
@@ -2039,6 +2062,10 @@
           finalPrice = 12000;
         }
         return finalPrice;
+      }
+
+      if ((sauceName === "Goat's Stew") && hasPilao) {
+        return 17000;
       }
 
       if (sauceName === "Liver") {
@@ -2060,6 +2087,15 @@
 
     function confirmLocalFoodToForm() {
       const selectedArray = state.isFullPilaoSelected ? [] : getSelectedCheckboxes();
+
+      if (!state.isFullPilaoSelected && state.currentModalType === "local" && selectedArray.includes("½pilao")) {
+        const otherFoods = selectedArray.filter(food => food !== "½pilao");
+        if (otherFoods.length === 0) {
+          alert("½pilao must strictly be selected with at least one other food option.");
+          return;
+        }
+      }
+
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       
       let fullDisplayName = state.currentLocalSauce;
@@ -2087,6 +2123,15 @@
 
     function sendLocalFoodDirectWhatsApp() {
       const selectedArray = state.isFullPilaoSelected ? [] : getSelectedCheckboxes();
+
+      if (!state.isFullPilaoSelected && state.currentModalType === "local" && selectedArray.includes("½pilao")) {
+        const otherFoods = selectedArray.filter(food => food !== "½pilao");
+        if (otherFoods.length === 0) {
+          alert("½pilao must strictly be selected with at least one other food option.");
+          return;
+        }
+      }
+
       const finalPrice = calculateLocalPrice(state.currentLocalSauce, selectedArray, state.currentLocalPrice);
       const locVal = document.getElementById('local-food-location').value.trim() || "Not specified";
       
@@ -2100,8 +2145,6 @@
         }
       }
 
-      const message = `Quick Order Request!\n\nDish: ${fullDisplayName}\nTotal Price: UGX ${finalPrice.toLocaleString()}\nLocation/Table: ${locVal}\n\nPlease confirm my order!`;
-      
       if (window.logFirebaseEvent) {
         window.logFirebaseEvent('purchase', {
           items: fullDisplayName,
@@ -2110,85 +2153,107 @@
         });
       }
 
-      closeModal('modal-food');
+      const isFriday = isFridayInEAT();
+      const title = isFriday ? "*FRIDAY PIZZA OFFER*\n\nNew Quick Order Request!" : "New Quick Order Request!";
+      const message = `${title}\n\nDish: ${fullDisplayName}\nPrice: UGX ${finalPrice.toLocaleString()}\nDestination/Table: ${locVal}\n\nPlease confirm!`;
       dispatchWhatsApp(message);
+      closeModal('modal-food');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderHomePageDishes();
-      renderMenu();
+    // Attach mutual-hiding payment toggle button listeners
+    const btnMtn = document.getElementById('btn-toggle-mtn-branches');
+    const btnAirtel = document.getElementById('btn-toggle-airtel-branches');
+    const mtnBranches = document.getElementById('mtn-branch-container');
+    const airtelBranches = document.getElementById('airtel-branch-container');
 
-      document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
-        document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
-      });
+    btnMtn.addEventListener('click', () => {
+      const isMtnVisible = mtnBranches.classList.contains('active');
 
-      document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
-        document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
-      });
-
-      document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
-      document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
-      document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
-      
-      document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
-      document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
-      
-      document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
-      document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
-      document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
-
-      document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-orders-list-btn')));
-      document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
-      document.getElementById('link-view-all').addEventListener('click', (e) => {
-        e.preventDefault();
-        switchTab('menu', document.getElementById('nav-menu-btn'));
-      });
-      document.getElementById('btn-promo-order').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
-
-      document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
-      document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
-      document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
-
-      document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
-
-      document.getElementById('nav-home-btn').addEventListener('click', function() { switchTab('home', this); });
-      document.getElementById('nav-menu-btn').addEventListener('click', function() { switchTab('menu', this); });
-      document.getElementById('nav-order-btn').addEventListener('click', function() { switchTab('menu', this); });
-      document.getElementById('nav-orders-list-btn').addEventListener('click', function() { switchTab('order', this); });
-      document.getElementById('nav-contact-btn').addEventListener('click', function() { switchTab('contact', this); });
-      document.getElementById('nav-profile-btn').addEventListener('click', function() { switchTab('profile', this); });
-
-      document.getElementById('btn-change-photo').addEventListener('click', () => {
-        document.getElementById('profile-photo-input').click();
-      });
-      document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
-
-      document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
-        document.getElementById('signup-photo-input').click();
-      });
-      document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
-
-      document.getElementById('btn-toggle-mtn-branches').addEventListener('click', () => {
-        const mtnContainer = document.getElementById('mtn-branch-container');
-        const airtelContainer = document.getElementById('airtel-branch-container');
-        airtelContainer.classList.remove('active');
-        mtnContainer.classList.toggle('active');
-      });
-
-      document.getElementById('btn-toggle-airtel-branches').addEventListener('click', () => {
-        const mtnContainer = document.getElementById('mtn-branch-container');
-        const airtelContainer = document.getElementById('airtel-branch-container');
-        mtnContainer.classList.remove('active');
-        airtelContainer.classList.toggle('active');
-      });
-
-      // Updated Payment Merchant Dial Codes
-      document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*924384#'));
-      document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*61126006#'));
-
-      document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*185*9*6627096#'));
-      document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*185*9*7139511#'));
+      if (isMtnVisible) {
+        mtnBranches.classList.remove('active');
+        btnAirtel.style.display = 'block';
+      } else {
+        mtnBranches.classList.add('active');
+        airtelBranches.classList.remove('active');
+        btnAirtel.style.display = 'none';
+      }
     });
+
+    btnAirtel.addEventListener('click', () => {
+      const isAirtelVisible = airtelBranches.classList.contains('active');
+
+      if (isAirtelVisible) {
+        airtelBranches.classList.remove('active');
+        btnMtn.style.display = 'block';
+      } else {
+        airtelBranches.classList.add('active');
+        mtnBranches.classList.remove('active');
+        btnMtn.style.display = 'none';
+      }
+    });
+
+    // Attach updated MoMo / Airtel Merchant dial codes
+    document.getElementById('btn-mtn-kimera').addEventListener('click', () => dialCode('*165*3*924384#'));
+    document.getElementById('btn-mtn-sunways').addEventListener('click', () => dialCode('*165*3*61126006#'));
+    document.getElementById('btn-airtel-kimera').addEventListener('click', () => dialCode('*185*9*6627096#'));
+    document.getElementById('btn-airtel-sunways').addEventListener('click', () => dialCode('*185*9*7139511#'));
+
+    // Navigation and UI interactions
+    document.getElementById('nav-home-btn').addEventListener('click', (e) => switchTab('home', e.currentTarget));
+    document.getElementById('nav-menu-btn').addEventListener('click', (e) => switchTab('menu', e.currentTarget));
+    document.getElementById('nav-order-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
+    document.getElementById('nav-orders-list-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
+    document.getElementById('nav-contact-btn').addEventListener('click', (e) => switchTab('contact', e.currentTarget));
+    document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
+
+    document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
+    document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
+    document.getElementById('link-view-all').addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab('menu', document.getElementById('nav-menu-btn'));
+    });
+    
+    document.getElementById('btn-promo-order').addEventListener('click', () => {
+      handleAddClick('Pizza Large', 27000, false);
+      switchTab('order', document.getElementById('nav-order-btn'));
+    });
+
+    document.getElementById('btn-handle-login').addEventListener('click', handleLogin);
+    document.getElementById('btn-handle-signup').addEventListener('click', handleSignUp);
+    document.getElementById('btn-handle-logout').addEventListener('click', handleLogout);
+    document.getElementById('btn-send-main-order').addEventListener('click', sendMainOrder);
+
+    document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
+    document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
+    document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
+    document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
+    document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
+
+    document.getElementById('btn-confirm-local-food').addEventListener('click', confirmLocalFoodToForm);
+    document.getElementById('btn-send-local-food-wa').addEventListener('click', sendLocalFoodDirectWhatsApp);
+    document.getElementById('btn-close-food').addEventListener('click', () => closeModal('modal-food'));
+
+    document.getElementById('chk-show-login-password').addEventListener('change', (e) => {
+      document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('chk-show-signup-password').addEventListener('change', (e) => {
+      document.getElementById('signup-password').type = e.target.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('btn-upload-signup-photo').addEventListener('click', () => {
+      document.getElementById('signup-photo-input').click();
+    });
+    document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
+
+    document.getElementById('btn-change-photo').addEventListener('click', () => {
+      document.getElementById('profile-photo-input').click();
+    });
+    document.getElementById('profile-photo-input').addEventListener('change', handlePhotoUpload);
+
+    // Initial renders
+    renderHomePageDishes();
+    renderMenu();
   </script>
 </body>
 </html>
