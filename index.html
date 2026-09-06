@@ -931,11 +931,11 @@
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 32px);
-      max-width: 408px;
+      max-width: 430px;
       height: 65px;
       background-color: #0d281e;
       display: none;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(7, 1fr);
       gap: 2px;
       padding: 6px;
       border-radius: 35px;
@@ -950,7 +950,7 @@
       border: none;
       border-radius: 25px;
       font-weight: 600;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -960,7 +960,19 @@
       text-align: center;
     }
 
-    .nav-btn .nav-icon { font-size: 1rem; }
+    .nav-btn .nav-icon { 
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-btn .nav-icon img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
     .nav-btn.active {
       background-color: var(--card-bg);
@@ -971,8 +983,8 @@
       background: var(--bright-green);
       color: #04140c;
       border-radius: 50%;
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       margin: auto;
       font-weight: bold;
     }
@@ -1416,12 +1428,25 @@
     <button id="btn-font-toggle" class="font-toggle-btn" title="Toggle Font Size">Aa</button>
 
     <nav id="nav-bar" class="nav-bar">
-      <button class="nav-btn active" id="nav-home-btn"><span class="nav-icon">🏠</span>Home</button>
-      <button class="nav-btn" id="nav-menu-btn"><span class="nav-icon">📖</span>Menu</button>
+      <button class="nav-btn active" id="nav-home-btn">
+        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/16Jc2nA-sEqhbhkrVt3zUiMzLRBnrBE6x=s1000" alt="Home"></span>Home
+      </button>
+      <button class="nav-btn" id="nav-menu-btn">
+        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1ntRqZK213WkQ0dZMbQCtT5uDTFCrqsjW=s1000" alt="Menu"></span>Menu
+      </button>
       <button class="nav-btn nav-center" id="nav-order-btn"><span class="nav-icon">🛍️</span></button>
-      <button class="nav-btn" id="nav-orders-list-btn"><span class="nav-icon">📋</span>Place Order</button>
-      <button class="nav-btn" id="nav-contact-btn"><span class="nav-icon">📞</span>Contact</button>
-      <button class="nav-btn" id="nav-profile-btn"><span class="nav-icon">👤</span>Profile</button>
+      <button class="nav-btn" id="nav-orders-list-btn">
+        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1XbMBQryuWHEKxnKmULUAVMZiSOLmGFny=s1000" alt="Place Order"></span>Order
+      </button>
+      <button class="nav-btn" id="nav-location-btn" onclick="window.open('https://maps.app.goo.gl/wxgzLghPF1PoMzc56', '_blank')">
+        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1LOfV8f4P_pdeOcqtyra_Pj7X0z_Y8X_N=s1000" alt="Location"></span>Location
+      </button>
+      <button class="nav-btn" id="nav-contact-btn">
+        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1b-c7-2jYg2byWjuN3557LCt4q8VdJ8ao=s1000" alt="Contact"></span>Contact
+      </button>
+      <button class="nav-btn" id="nav-profile-btn">
+        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1LRous712aaQH7krQmnBb3J4L223axZte=s1000" alt="Profile"></span>Profile
+      </button>
     </nav>
   </div>
 
