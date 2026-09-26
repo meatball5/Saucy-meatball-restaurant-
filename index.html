@@ -267,7 +267,7 @@
       backdrop-filter: none;
       border-bottom: 1px solid var(--card-border);
       padding: 10px 16px;
-      display: none;
+      display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: none;
@@ -286,7 +286,7 @@
     .screen.active { display: block; }
 
     .global-payment-panel {
-      display: none;
+      display: block;
       margin: 16px;
     }
 
@@ -931,11 +931,11 @@
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 32px);
-      max-width: 430px;
+      max-width: 408px;
       height: 65px;
       background-color: #0d281e;
-      display: none;
-      grid-template-columns: repeat(7, 1fr);
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
       gap: 2px;
       padding: 6px;
       border-radius: 35px;
@@ -950,7 +950,7 @@
       border: none;
       border-radius: 25px;
       font-weight: 600;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -960,19 +960,7 @@
       text-align: center;
     }
 
-    .nav-btn .nav-icon { 
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .nav-btn .nav-icon img {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
+    .nav-btn .nav-icon { font-size: 1rem; }
 
     .nav-btn.active {
       background-color: var(--card-bg);
@@ -983,8 +971,8 @@
       background: var(--bright-green);
       color: #04140c;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       margin: auto;
       font-weight: bold;
     }
@@ -1136,7 +1124,7 @@
 
     <div class="content-area" id="main-content-area">
 
-      <section id="screen-login" class="screen active">
+      <section id="screen-login" class="screen">
         <div style="text-align: center; margin: 30px 0 15px;">
           <div class="brand-container">
             <div class="brand-top-row">
@@ -1176,6 +1164,9 @@
         </button>
         <button class="btn btn-text" id="btn-goto-signup" style="color: #ffffff; display: block; margin: 5px auto 0;">
           Not registered? Create Account
+        </button>
+        <button class="btn btn-text" id="btn-back-to-home-from-login" style="color: var(--bright-green); display: block; margin: 15px auto 0;">
+          ← Continue Browsing as Guest
         </button>
       </section>
 
@@ -1222,7 +1213,7 @@
         </button>
       </section>
 
-      <section id="screen-home" class="screen">
+      <section id="screen-home" class="screen active">
         <div class="hero-header">
           <div class="icon-btn">☰</div>
           <div class="brand-container compact">
@@ -1236,7 +1227,7 @@
         </div>
 
         <div class="hero-banner">
-          <p class="hero-tag">Welcome back!</p>
+          <p class="hero-tag">Welcome!</p>
           <h1 class="hero-title">Big flavor.<br/>Bigger cravings.</h1>
           <p class="hero-desc">Juicy meatballs. Rich sauces.<br/>Unforgettable meals.</p>
           
@@ -1371,7 +1362,9 @@
 
       <section id="screen-profile" class="screen">
         <h2 style="color:#fff; padding:16px 16px 0; font-size:1.4rem;">MY ACCOUNT</h2>
-        <div class="card" style="margin-top:12px;">
+        
+        <!-- Logged In View -->
+        <div id="profile-logged-in-view" class="card" style="margin-top:12px; display:none;">
           <div class="avatar-container">
             <img id="profile-img" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" />
             <input type="file" id="profile-photo-input" accept="image/*" style="display: none;" />
@@ -1385,6 +1378,17 @@
           </div>
 
           <button class="btn btn-danger" id="btn-handle-logout">LOG OUT</button>
+        </div>
+
+        <!-- Guest View -->
+        <div id="profile-guest-view" class="card" style="margin-top:12px; text-align: center; padding: 24px 18px;">
+          <div style="font-size: 3rem; margin-bottom: 10px;">👤</div>
+          <h3 class="accent-title" style="margin-bottom: 8px;">Browsing as Guest</h3>
+          <p style="font-size: 0.85rem; color: var(--subtext); margin-bottom: 20px; line-height: 1.4;">
+            You can place orders freely without logging in! Log in or create an account anytime to save your profile info.
+          </p>
+          <button class="btn btn-bold-green" id="btn-profile-goto-login" style="margin-bottom: 10px;">LOG IN TO ACCOUNT</button>
+          <button class="btn btn-bold-gold" id="btn-profile-goto-signup">CREATE NEW ACCOUNT</button>
         </div>
       </section>
 
@@ -1428,25 +1432,12 @@
     <button id="btn-font-toggle" class="font-toggle-btn" title="Toggle Font Size">Aa</button>
 
     <nav id="nav-bar" class="nav-bar">
-      <button class="nav-btn active" id="nav-home-btn">
-        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/16Jc2nA-sEqhbhkrVt3zUiMzLRBnrBE6x=s1000" alt="Home"></span>Home
-      </button>
-      <button class="nav-btn" id="nav-menu-btn">
-        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1ntRqZK213WkQ0dZMbQCtT5uDTFCrqsjW=s1000" alt="Menu"></span>Menu
-      </button>
+      <button class="nav-btn active" id="nav-home-btn"><span class="nav-icon">🏠</span>Home</button>
+      <button class="nav-btn" id="nav-menu-btn"><span class="nav-icon">📖</span>Menu</button>
       <button class="nav-btn nav-center" id="nav-order-btn"><span class="nav-icon">🛍️</span></button>
-      <button class="nav-btn" id="nav-orders-list-btn">
-        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1XbMBQryuWHEKxnKmULUAVMZiSOLmGFny=s1000" alt="Place Order"></span>Order
-      </button>
-      <button class="nav-btn" id="nav-location-btn" onclick="window.open('https://maps.app.goo.gl/wxgzLghPF1PoMzc56', '_blank')">
-        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1LOfV8f4P_pdeOcqtyra_Pj7X0z_Y8X_N=s1000" alt="Location"></span>Location
-      </button>
-      <button class="nav-btn" id="nav-contact-btn">
-        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1b-c7-2jYg2byWjuN3557LCt4q8VdJ8ao=s1000" alt="Contact"></span>Contact
-      </button>
-      <button class="nav-btn" id="nav-profile-btn">
-        <span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1LRous712aaQH7krQmnBb3J4L223axZte=s1000" alt="Profile"></span>Profile
-      </button>
+      <button class="nav-btn" id="nav-orders-list-btn"><span class="nav-icon">📋</span>Place Order</button>
+      <button class="nav-btn" id="nav-contact-btn"><span class="nav-icon">📞</span>Contact</button>
+      <button class="nav-btn" id="nav-profile-btn"><span class="nav-icon">👤</span>Profile</button>
     </nav>
   </div>
 
@@ -1705,7 +1696,7 @@
       const floatingBar = document.getElementById('top-floating-bar');
       const paymentSection = document.getElementById('global-payment-section');
       
-      const hiddenScreens = ['login', 'signup', 'profile', 'contact'];
+      const hiddenScreens = ['login', 'signup'];
       if (hiddenScreens.includes(screenId)) {
         floatingBar.style.display = 'none';
         paymentSection.style.display = 'none';
@@ -1725,10 +1716,6 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       if (btnInstance) btnInstance.classList.add('active');
       navigateTo(tabId);
-    }
-
-    function toggleNavbar(visible) {
-      document.getElementById('nav-bar').style.display = visible ? 'grid' : 'none';
     }
 
     function updateFloatingTotalUI() {
@@ -1793,6 +1780,7 @@
         if (window.logFirebaseEvent) {
           window.logFirebaseEvent('login', { method: 'email' });
         }
+        switchTab('home', document.getElementById('nav-home-btn'));
       } catch (error) {
         err.innerText = error.message.replace("Firebase: ", "");
       }
@@ -1848,6 +1836,7 @@
         if (window.logFirebaseEvent) {
           window.logFirebaseEvent('sign_up', { method: 'email' });
         }
+        switchTab('home', document.getElementById('nav-home-btn'));
       } catch (error) {
         err.innerText = error.message.replace("Firebase: ", "");
         emailInput.classList.add('input-error');
@@ -1876,24 +1865,22 @@
     }
 
     async function handleLogout() {
-      state.orderList = [];
-      syncOrderInputText();
       await window.firebaseLogout();
     }
 
     window.onSessionChanged = function(user) {
       if (user) {
         state.isLoggedIn = true;
-        state.currentUser = user;
-        updateProfileUI();
-        toggleNavbar(true);
-        switchTab('home', document.getElementById('nav-home-btn'));
+        state.currentUser = {
+          name: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          photoURL: user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+        };
       } else {
         state.isLoggedIn = false;
         state.currentUser = null;
-        toggleNavbar(false);
-        navigateTo('login');
       }
+      updateProfileUI();
     };
 
     function handlePhotoUpload(event) {
@@ -1936,10 +1923,19 @@
     }
 
     function updateProfileUI() {
-      if (!state.currentUser) return;
-      document.getElementById('profile-name').innerText = state.currentUser.name || "User Account";
-      document.getElementById('profile-email').innerText = state.currentUser.email || "";
-      document.getElementById('profile-img').src = state.currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+      const loggedInView = document.getElementById('profile-logged-in-view');
+      const guestView = document.getElementById('profile-guest-view');
+
+      if (state.isLoggedIn && state.currentUser) {
+        loggedInView.style.display = 'block';
+        guestView.style.display = 'none';
+        document.getElementById('profile-name').innerText = state.currentUser.name || "User Account";
+        document.getElementById('profile-email').innerText = state.currentUser.email || "";
+        document.getElementById('profile-img').src = state.currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+      } else {
+        loggedInView.style.display = 'none';
+        guestView.style.display = 'block';
+      }
     }
 
     function dispatchWhatsApp(message) {
@@ -2320,6 +2316,12 @@
 
     document.getElementById('btn-goto-signup').addEventListener('click', () => navigateTo('signup'));
     document.getElementById('btn-goto-login').addEventListener('click', () => navigateTo('login'));
+    document.getElementById('btn-back-to-home-from-login').addEventListener('click', () => switchTab('home', document.getElementById('nav-home-btn')));
+    
+    // Profile guest view button listeners
+    document.getElementById('btn-profile-goto-login').addEventListener('click', () => navigateTo('login'));
+    document.getElementById('btn-profile-goto-signup').addEventListener('click', () => navigateTo('signup'));
+
     document.getElementById('btn-open-forgot').addEventListener('click', () => openModal('modal-forgot'));
     document.getElementById('btn-close-forgot').addEventListener('click', () => closeModal('modal-forgot'));
     document.getElementById('btn-handle-password-reset').addEventListener('click', handlePasswordReset);
