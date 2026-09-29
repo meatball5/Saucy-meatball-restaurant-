@@ -634,7 +634,8 @@
     input[type="number"],
     input[type="email"],
     input[type="tel"],
-    select {
+    select,
+    textarea {
       width: 100%;
       height: 48px;
       background-color: var(--input-bg);
@@ -648,12 +649,18 @@
       transition: all 0.2s;
     }
 
+    textarea {
+      height: 120px;
+      padding: 12px;
+      resize: vertical;
+    }
+
     input.input-error {
       border: 2px solid #ff6b6b !important;
       background-color: rgba(255, 107, 107, 0.15) !important;
     }
 
-    input:focus, select:focus {
+    input:focus, select:focus, textarea:focus {
       border-color: var(--bright-green);
       box-shadow: 0 0 8px rgba(82, 183, 136, 0.4);
     }
@@ -1114,6 +1121,29 @@
     }
 
     .creator-wa-btn:active { opacity: 0.8; }
+
+    /* --- ADMIN PORTAL STYLING --- */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+    .admin-table th, .admin-table td {
+      border: 1px solid var(--card-border);
+      padding: 8px;
+      text-align: left;
+    }
+    .admin-table th {
+      background-color: var(--input-bg);
+      color: var(--gold-primary);
+    }
+    .admin-table input {
+      height: 36px;
+      margin-bottom: 0;
+      font-size: 0.85rem;
+      padding: 0 6px;
+    }
   </style>
 </head>
 <body>
@@ -1384,6 +1414,109 @@
         </div>
       </section>
 
+      <!-- ADMIN PORTAL SCREEN (Hidden by default, unlocked for admin login) -->
+      <section id="screen-admin" class="screen">
+        <h2 style="color:var(--gold-primary); padding:16px 16px 0; font-size:1.4rem;">⚙️ ADMIN DASHBOARD</h2>
+        <div class="card" style="margin-top:12px; border-color: var(--gold-primary);">
+          <h3 class="accent-title" style="color: var(--gold-primary); margin-bottom: 8px;">Add New Menu Item</h3>
+          <label>Category</label>
+          <select id="admin-new-category">
+            <option value="english and classic breakfast">English and Classic Breakfast</option>
+            <option value="snacks and take away">Snacks and Take Away</option>
+            <option value="local dishes">Local Dishes</option>
+            <option value="special dishes">Special Dishes</option>
+          </select>
+          <label>Item Name</label>
+          <input type="text" id="admin-new-name" placeholder="e.g. Special Burger" />
+          <label>Price (Numeric Raw Value)</label>
+          <input type="number" id="admin-new-price" placeholder="10000" />
+          <button class="btn btn-bold-gold" id="btn-admin-add-item">Add Item to Menu</button>
+        </div>
+
+        <div class="card" style="border-color: var(--gold-primary);">
+          <h3 class="accent-title" style="color: var(--gold-primary); margin-bottom: 8px;">Update Existing Item Prices</h3>
+          <div style="max-height: 250px; overflow-y: auto;">
+            <table class="admin-table" id="admin-prices-table">
+              <thead>
+                <tr>
+                  <th>Category / Item</th>
+                  <th>Price (UGX)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-prices-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="border-color: var(--gold-primary);">
+          <h3 class="accent-title" style="color: var(--gold-primary); margin-bottom: 8px;">Update Price Logic Formula</h3>
+          <label>Custom Pricing Rules & Calculations Function Code</label>
+          <textarea id="admin-logic-editor">// Modify the calculateLocalPrice logic implementation string below:
+function calculateLocalPrice(sauceName, selectedArray, basePrice) {
+  if (state.currentModalType === "pilao_snack") {
+    return basePrice;
+  }
+
+  const hasPilao = selectedArray.includes("½pilao");
+  const hasHalfChips = selectedArray.includes("½chips");
+
+  if (sauceName === "Chicken Stew" && hasPilao) return 16000;
+  if (sauceName === "Fresh Fish" && hasPilao) return 15000;
+
+  if (state.isFullPilaoSelected) {
+    if (sauceName === "Goat's Stew" || sauceName === "Fresh Fish" || sauceName === "Chicken Stew" || sauceName === "Panfried Beef" || sauceName === "Liver") {
+      return 17000;
+    }
+    if (basePrice === 6000) return basePrice * 2;
+    if (basePrice === 10000) return basePrice + 5000;
+    return basePrice;
+  }
+
+  let finalPrice = basePrice;
+  const hasOtherFoods = selectedArray.some(item => item !== "½chips" && item !== "½pilao");
+
+  if (sauceName === "Panfried Beef") {
+    if (hasHalfChips && hasPilao) return basePrice + 5000;
+    if (hasHalfChips) return 17000;
+    if (hasPilao) return 15000;
+    else if (hasOtherFoods) return 15000;
+    else return 12000;
+  }
+
+  if (sauceName === "Goat's Stew" && hasPilao) return 17000;
+
+  if (hasHalfChips && hasPilao) {
+    if (basePrice < 10000) return 12000;
+    if (basePrice === 10000) return 15000;
+    if (basePrice > 10000) return 17000;
+  }
+
+  if (hasHalfChips && hasOtherFoods) {
+    return basePrice + 2000;
+  }
+
+  if (sauceName === "Liver") {
+    if ((hasHalfChips && hasPilao) || (hasHalfChips && hasOtherFoods) || (hasPilao && hasOtherFoods)) {
+      return 17000;
+    } else {
+      return 15000;
+    }
+  }
+
+  const hasOtherThanPilao = selectedArray.some(item => item !== "½pilao");
+  if (hasPilao && hasOtherThanPilao && sauceName !== "Panfried Goat" && sauceName !== "Panfried Chicken") {
+    finalPrice += 3000;
+  }
+
+  return finalPrice;
+}</textarea>
+          <button class="btn btn-bold-gold" id="btn-admin-save-logic" style="margin-top: 10px;">Save & Apply Price Logic</button>
+        </div>
+      </section>
+
       <div id="global-payment-section" class="global-payment-panel">
         <div class="card">
           <h3 class="accent-title" style="margin-bottom: 8px;">Direct Mobile Money Dial</h3>
@@ -1430,6 +1563,8 @@
       <button class="nav-btn" id="nav-orders-list-btn"><span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1M9OUnr_kTKzYvxtQQYjS1HtfwPxWxOYO=s1000" width="36" height="36" style="border-radius:50%;object-fit:cover;" alt="Order"></span>Order</button>
       <button class="nav-btn" id="nav-contact-btn"><span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1SIPKAH1YlDhcjqY9I23YSFmMY87gTjzp=s1000" width="36" height="36" style="border-radius:50%;object-fit:cover;" alt="Contact"></span>Contact</button>
       <button class="nav-btn" id="nav-profile-btn"><span class="nav-icon"><img src="https://lh3.googleusercontent.com/d/1Kp1dMOdzE7dN3c-AXXSsFKNYcg2GHmvt=s1000" width="36" height="36" style="border-radius:50%;object-fit:cover;" alt="Profile"></span>Profile</button>
+      <!-- ADMIN NAV TAB (Hidden for non-admin) -->
+      <button class="nav-btn" id="nav-admin-btn" style="display: none;"><span class="nav-icon">⚙️</span>Admin</button>
     </nav>
   </div>
 
@@ -1491,10 +1626,12 @@
     }
 
     const TARGET_WHATSAPP = "256752534379";
+    const ADMIN_EMAIL = "akugizibwevicent01@gmail.com";
 
     const state = {
       isLoggedIn: false,
       currentUser: null,
+      isAdmin: false,
       currentLocalSauce: "",
       currentLocalPrice: 0,
       currentModalType: "local",
@@ -1661,7 +1798,7 @@
         
         const badgeHtml = badge ? `<span class="badge-tag"${badge === "CHEF'S PICK" ? ' style="background:var(--mtn-yellow); color:#000;"' : ''}>${badge}</span>` : '';
         const descHtml = desc || 'Special restaurant dish cooked fresh on order';
-        const cleanImgUrl = encodeURI(imgUrl);
+        const cleanImgUrl = imgUrl ? encodeURI(imgUrl) : fallbackPlaceholder;
         
         dishCard.innerHTML = `
           ${badgeHtml}
@@ -1688,7 +1825,7 @@
       const floatingBar = document.getElementById('top-floating-bar');
       const paymentSection = document.getElementById('global-payment-section');
       
-      const hiddenScreens = ['login', 'signup', 'profile', 'contact'];
+      const hiddenScreens = ['login', 'signup', 'profile', 'contact', 'admin'];
       if (hiddenScreens.includes(screenId)) {
         floatingBar.style.display = 'none';
         paymentSection.style.display = 'none';
@@ -1873,11 +2010,21 @@
           email: user.email,
           photoURL: user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
         };
+        if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+          state.isAdmin = true;
+          document.getElementById('nav-admin-btn').style.display = 'flex';
+        } else {
+          state.isAdmin = false;
+          document.getElementById('nav-admin-btn').style.display = 'none';
+        }
       } else {
         state.isLoggedIn = false;
         state.currentUser = null;
+        state.isAdmin = false;
+        document.getElementById('nav-admin-btn').style.display = 'none';
       }
       updateProfileUI();
+      renderAdminPricesTable();
     };
 
     function handlePhotoUpload(event) {
@@ -2107,7 +2254,6 @@
       const grid = document.getElementById('food-options-grid');
       grid.style.display = 'grid';
 
-      // Update the send direct button text dynamically based on current order count + 1 (the new item being added)
       const currentCount = state.orderList.length + 1;
       const sendDirectBtn = document.getElementById('btn-send-local-food-wa');
       if (sendDirectBtn) {
@@ -2164,7 +2310,8 @@
       return checked;
     }
 
-    function calculateLocalPrice(sauceName, selectedArray, basePrice) {
+    // Dynamic Price Calculation Logic Function (Overridable via Admin Portal)
+    let calculateLocalPrice = function(sauceName, selectedArray, basePrice) {
       if (state.currentModalType === "pilao_snack") {
         return basePrice;
       }
@@ -2188,6 +2335,7 @@
       const hasOtherFoods = selectedArray.some(item => item !== "½chips" && item !== "½pilao");
 
       if (sauceName === "Panfried Beef") {
+        if (hasHalfChips && hasPilao) return basePrice + 5000;
         if (hasHalfChips) return 17000;
         if (hasPilao) return 15000;
         else if (hasOtherFoods) return 15000;
@@ -2220,15 +2368,19 @@
       }
 
       return finalPrice;
-    }
+    };
 
     function confirmLocalFoodToForm() {
       const selectedArray = state.isFullPilaoSelected ? [] : getSelectedCheckboxes();
 
-      if (!state.isFullPilaoSelected && state.currentModalType === "local" && selectedArray.includes("½pilao")) {
-        const otherFoods = selectedArray.filter(food => food !== "½pilao");
-        if (otherFoods.length === 0) {
-          alert("½pilao must strictly be selected with at least one other food option.");
+      if (!state.isFullPilaoSelected && state.currentModalType === "local") {
+        const hasHalfChips = selectedArray.includes("½chips");
+        const hasHalfPilao = selectedArray.includes("½pilao");
+        const otherFoods = selectedArray.filter(food => food !== "½chips" && food !== "½pilao");
+
+        // Rule: ½chips and ½pilao must be chosen together OR with at least one other food option
+        if (selectedArray.length === 1 && (hasHalfChips || hasHalfPilao)) {
+          alert("½chips or ½pilao must either be chosen together or with at least one other food option.");
           return;
         }
       }
@@ -2267,10 +2419,14 @@
 
       const selectedArray = state.isFullPilaoSelected ? [] : getSelectedCheckboxes();
 
-      if (!state.isFullPilaoSelected && state.currentModalType === "local" && selectedArray.includes("½pilao")) {
-        const otherFoods = selectedArray.filter(food => food !== "½pilao");
-        if (otherFoods.length === 0) {
-          alert("½pilao must strictly be selected with at least one other food option.");
+      if (!state.isFullPilaoSelected && state.currentModalType === "local") {
+        const hasHalfChips = selectedArray.includes("½chips");
+        const hasHalfPilao = selectedArray.includes("½pilao");
+        const otherFoods = selectedArray.filter(food => food !== "½chips" && food !== "½pilao");
+
+        // Rule: ½chips and ½pilao must be chosen together OR with at least one other food option
+        if (selectedArray.length === 1 && (hasHalfChips || hasHalfPilao)) {
+          alert("½chips or ½pilao must either be chosen together or with at least one other food option.");
           return;
         }
       }
@@ -2347,6 +2503,7 @@
     document.getElementById('nav-orders-list-btn').addEventListener('click', (e) => switchTab('order', e.currentTarget));
     document.getElementById('nav-contact-btn').addEventListener('click', (e) => switchTab('contact', e.currentTarget));
     document.getElementById('nav-profile-btn').addEventListener('click', (e) => switchTab('profile', e.currentTarget));
+    document.getElementById('nav-admin-btn').addEventListener('click', (e) => switchTab('admin', e.currentTarget));
 
     document.getElementById('btn-hero-order').addEventListener('click', () => switchTab('order', document.getElementById('nav-order-btn')));
     document.getElementById('btn-hero-menu').addEventListener('click', () => switchTab('menu', document.getElementById('nav-menu-btn')));
@@ -2387,6 +2544,90 @@
       document.getElementById('signup-photo-input').click();
     });
     document.getElementById('signup-photo-input').addEventListener('change', handleSignupPhotoUpload);
+
+
+    // --- ADMIN PORTAL ACTIONS IMPLEMENTATION ---
+    function renderAdminPricesTable() {
+      const tbody = document.getElementById('admin-prices-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      for (const [category, items] of Object.entries(pdfMenu)) {
+        items.forEach((item, index) => {
+          const [name, displayPrice, rawPrice, isCustom] = item;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong style="color:var(--bright-green); font-size:0.75rem; display:block; text-transform:uppercase;">${category}</strong>${name}</td>
+            <td><input type="number" id="admin-price-${category}-${index}" value="${rawPrice}" style="width: 100px;" /></td>
+            <td><button class="btn btn-bold-green" style="height:36px; font-size:0.75rem;" onclick="updateItemPrice('${category}', ${index})">Save</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    window.updateItemPrice = function(category, index) {
+      const input = document.getElementById(`admin-price-${category}-${index}`);
+      const newPrice = parseInt(input.value);
+      if (isNaN(newPrice)) {
+        alert("Please enter a valid numeric price.");
+        return;
+      }
+      pdfMenu[category][index][2] = newPrice;
+      pdfMenu[category][index][1] = newPrice.toLocaleString() + "/=";
+      renderMenu();
+      renderHomePageDishes();
+      alert("Price updated successfully!");
+    };
+
+    document.getElementById('btn-admin-add-item').addEventListener('click', () => {
+      const category = document.getElementById('admin-new-category').value;
+      const name = document.getElementById('admin-new-name').value.trim();
+      const price = parseInt(document.getElementById('admin-new-price').value);
+
+      if (!name || isNaN(price)) {
+        alert("Please provide a valid item name and numeric price.");
+        return;
+      }
+
+      const displayPrice = price.toLocaleString() + "/=";
+      if (!pdfMenu[category]) pdfMenu[category] = [];
+      pdfMenu[category].push([name, displayPrice, price, false]);
+
+      document.getElementById('admin-new-name').value = "";
+      document.getElementById('admin-new-price').value = "";
+
+      renderMenu();
+      renderHomePageDishes();
+      renderAdminPricesTable();
+      alert("New menu item added successfully!");
+    });
+
+    document.getElementById('btn-admin-save-logic').addEventListener('click', () => {
+      const codeSnippet = document.getElementById('admin-logic-editor').value;
+      try {
+        // Dynamically evaluate/compile the new calculateLocalPrice function code safely
+        const dynamicFunc = new Function('sauceName', 'selectedArray', 'basePrice', `
+          ${codeSnippet}
+          return calculateLocalPrice(sauceName, selectedArray, basePrice);
+        `);
+        
+        // Test run check
+        dynamicFunc("Beef", [], 10000);
+        
+        calculateLocalPrice = function(sauceName, selectedArray, basePrice) {
+          const evalFunc = new Function('sauceName', 'selectedArray', 'basePrice', `
+            ${codeSnippet}
+            return calculateLocalPrice(sauceName, selectedArray, basePrice);
+          `);
+          return evalFunc(sauceName, selectedArray, basePrice);
+        };
+        
+        alert("Price logic function successfully updated and applied!");
+      } catch (err) {
+        alert("Syntax or Reference Error in your logic code snippet: " + err.message);
+      }
+    });
 
 
     // --- NEW LOGIC ADDITIONS ---
@@ -2474,6 +2715,7 @@
     updateProfileUI();
     renderHomePageDishes();
     renderMenu();
+    renderAdminPricesTable();
   </script>
 </body>
 </html>
